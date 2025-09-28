@@ -610,7 +610,7 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     
     with recipe_col2:
         st.markdown("**Recipe (# of Batches):**")
-        num_batches = st.number_input("", min_value=0.1, value=float(bom_data['recipe_batches']) if bom_data['recipe_batches'] else 1.0, step=0.1, key="batches_input")
+        num_batches = st.number_input("", min_value=1, value=float(bom_data['recipe_batches']) if bom_data['recipe_batches'] else 1.0, step=1, key="batches_input")
     
     st.markdown('</div></div>', unsafe_allow_html=True)
     
