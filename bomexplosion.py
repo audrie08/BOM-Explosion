@@ -86,6 +86,8 @@ st.markdown("""
         margin-bottom: 0 !important;
         display: flex !important;
         align-items: center !important;
+        height: 40px !important;
+        padding-top: 65px !important;
     }
     
     .nav-selectors .stSelectbox > div > div {
@@ -98,12 +100,16 @@ st.markdown("""
         height: 75px !important;
         display: flex !important;
         align-items: center !important;
+        height: 40px !important;
+        padding-top: 65px !important;
     }
     
     .nav-selectors .stSelectbox > div > div > div {
         color: white !important;
         display: flex !important;
         align-items: center !important;
+        height: 40px !important;
+        padding-top: 65px !important;
     }
     
     /* Custom breadcrumb */
