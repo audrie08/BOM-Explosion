@@ -32,25 +32,22 @@ st.markdown("""
         display: none;
     }
     
-    /* Custom navigation bar */
+    /* Custom navigation bar - now just for selectors */
     .top-nav {
         background-color: #2C2C2C;
-        padding: 20px 30px;
-        margin: -1rem -1rem 0 -1rem;
+        padding: 15px 30px;
+        margin: -10px -1rem 0 -1rem;
         display: flex;
         align-items: center;
-        gap: 30px;
+        justify-content: flex-end;
         position: sticky;
         top: 0;
         z-index: 999;
     }
     
+    /* Remove nav-brand since title is now separate */
     .nav-brand {
-        color: #F4C430;
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin: 0;
-        margin-right: auto;
+        display: none;
     }
     
     .nav-selectors {
@@ -423,19 +420,24 @@ def extract_bom_data(df, start_row):
         "pack_sizes": pack_sizes
     }
 
-# Create top navigation bar
+# Create top navigation bar with title on left and selectors on right
+title_col, nav_col1, nav_col2 = st.columns([3, 2, 2])
+
+with title_col:
+    st.markdown('<h1 style="color: #F4C430; font-size: 1.8rem; font-weight: 700; margin: 20px 0; padding-top: 10px;">BOM Explosion</h1>', unsafe_allow_html=True)
+
+# Create the dark navigation bar for selectors only
 st.markdown('''
 <div class="top-nav">
-    <div class="nav-brand">BOM Explosion</div>
-    <div class="nav-selectors" id="nav-controls">
+    <div style="margin-left: auto; display: flex; gap: 20px; align-items: center;">
     </div>
 </div>
 ''', unsafe_allow_html=True)
 
-# Create navigation selectors
-col1, col2, col3 = st.columns([6, 2, 2])
+# Position the selectors in the nav area
+selector_col1, selector_col2, selector_col3 = st.columns([6, 2, 2])
 
-with col2:
+with selector_col2:
     station = st.selectbox("", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"], key="station_selector")
 
 # Load data and create subrecipe selector
@@ -445,7 +447,7 @@ if station == "Cold Kitchen":
         subrecipes = get_subrecipes(df)
         if subrecipes:
             recipe_names = [r['name'] for r in subrecipes]
-            with col3:
+            with selector_col3:
                 selected_recipe = st.selectbox("", recipe_names, key="subrecipe_selector")
         else:
             selected_recipe = None
