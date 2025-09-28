@@ -516,7 +516,7 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     
     # Pack sizes section (without container - simple title and checkboxes)
     if bom_data['pack_sizes']:
-        st.markdown('<h3 class="pack-sizes-title">PACK SIZES</h3>', unsafe_allow_html=True)
+        st.markdown('<h3>PACK SIZES</h3>', unsafe_allow_html=True)
         
         pack_cols = st.columns(len(bom_data['pack_sizes']))
         for i, pack in enumerate(bom_data['pack_sizes']):
