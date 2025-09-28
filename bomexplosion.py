@@ -7,8 +7,213 @@ import io
 
 warnings.filterwarnings('ignore')
 
-st.set_page_config(page_title="BOM Explosion", page_icon="🧪", layout="wide")
-st.title("🧪 BOM Explosion")
+st.set_page_config(page_title="BOM Explosion", layout="wide")
+
+# Custom CSS for Option 2 design
+st.markdown("""
+<style>
+    /* Hide Streamlit default elements */
+    .main > div {
+        padding-top: 0rem;
+    }
+    
+    /* Custom navigation bar */
+    .nav-bar {
+        background-color: #2C2C2C;
+        padding: 20px 30px;
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin: -1rem -1rem 0 -1rem;
+        border-bottom: 3px solid #F4C430;
+    }
+    
+    .nav-brand {
+        color: #F4C430;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .nav-controls {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        margin-left: auto;
+    }
+    
+    /* Custom breadcrumb */
+    .breadcrumb {
+        background-color: #F5F5F5;
+        padding: 15px 30px;
+        margin: 0 -1rem 20px -1rem;
+        font-size: 14px;
+        color: #666;
+        border-bottom: 1px solid #E0E0E0;
+    }
+    
+    .breadcrumb a {
+        color: #F4C430;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Content header */
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #F4C430;
+    }
+    
+    .content-title {
+        font-size: 2.5rem;
+        color: #2C2C2C;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .sku-badge {
+        background: #F4C430;
+        color: #2C2C2C;
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 16px;
+        border: none;
+    }
+    
+    /* Section styling */
+    .bom-section {
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .section-header {
+        background: #F4C430;
+        color: #2C2C2C;
+        padding: 18px 25px;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+    
+    .section-content {
+        padding: 25px;
+    }
+    
+    /* Custom table styling */
+    .dataframe {
+        border: none !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    
+    .dataframe thead th {
+        background-color: #F5F5F5 !important;
+        color: #2C2C2C !important;
+        font-weight: 600 !important;
+        padding: 15px 12px !important;
+        border-bottom: 2px solid #E0E0E0 !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        font-size: 14px !important;
+        letter-spacing: 0.3px !important;
+    }
+    
+    .dataframe tbody td {
+        padding: 15px 12px !important;
+        border-bottom: 1px solid #E0E0E0 !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        font-size: 14px !important;
+        color: #333 !important;
+    }
+    
+    .dataframe tbody tr:nth-child(even) {
+        background-color: #FAFAFA !important;
+    }
+    
+    .dataframe tbody tr:hover {
+        background-color: #FFF9E6 !important;
+    }
+    
+    /* Pack sizes styling */
+    .pack-sizes {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        padding: 20px 0;
+    }
+    
+    .pack-size-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #F5F5F5;
+        padding: 12px 18px;
+        border-radius: 8px;
+        border: 2px solid #E0E0E0;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .pack-size-item:hover {
+        border-color: #F4C430;
+        background: #FFFDF5;
+    }
+    
+    /* Hide Streamlit selectbox styling */
+    .stSelectbox > div > div {
+        background-color: #3A3A3A;
+        border: 2px solid #F4C430;
+        border-radius: 8px;
+        color: white;
+    }
+    
+    .stSelectbox > div > div > div {
+        color: white;
+        font-weight: 500;
+    }
+    
+    /* Hide default title */
+    h1 {
+        display: none;
+    }
+    
+    /* Custom spacing */
+    .block-container {
+        padding-top: 0rem;
+        padding-bottom: 2rem;
+    }
+    
+    /* Checkbox styling */
+    .stCheckbox > label {
+        font-weight: 500;
+        color: #2C2C2C;
+    }
+    
+    .stCheckbox > label > div {
+        border-color: #F4C430 !important;
+    }
+    
+    .stCheckbox > label > div[data-checked="true"] {
+        background-color: #F4C430 !important;
+        border-color: #F4C430 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 @st.cache_resource
 def load_credentials():
@@ -40,7 +245,7 @@ def load_cold_kitchen_data():
         
         gc = gspread.authorize(credentials)
         sh = gc.open_by_key("17jeWWOaREFg6QMqDpQX-T3LYsETR7F4iZvWS5lC0I3w")
-        worksheet = sh.get_worksheet(2)  # Sheet index 2 for Cold Kitchen
+        worksheet = sh.get_worksheet(2)
         data = worksheet.get_all_values()
         df = pd.DataFrame(data)
         return df
@@ -58,7 +263,6 @@ def get_subrecipes(df):
     return subrecipes
 
 def update_pack_size_in_sheet(recipe_row, pack_size, new_state):
-    """Update pack size state directly in Google Sheets"""
     try:
         credentials = load_credentials()
         if not credentials:
@@ -68,7 +272,6 @@ def update_pack_size_in_sheet(recipe_row, pack_size, new_state):
         sh = gc.open_by_key("17jeWWOaREFg6QMqDpQX-T3LYsETR7F4iZvWS5lC0I3w")
         worksheet = sh.get_worksheet(2)
         
-        # Find the pack size row within the recipe section
         section_start = recipe_row + 1
         section_end = recipe_row + 24
         
@@ -78,7 +281,6 @@ def update_pack_size_in_sheet(recipe_row, pack_size, new_state):
                 if len(row_data) >= 3:
                     col_c = row_data[2] if len(row_data) > 2 else ""
                     if col_c == pack_size:
-                        # Update column B (index 2 in 1-based)
                         worksheet.update_cell(row_idx, 2, "TRUE" if new_state else "FALSE")
                         return True
             except:
@@ -92,11 +294,9 @@ def update_pack_size_in_sheet(recipe_row, pack_size, new_state):
 def extract_bom_data(df, start_row):
     section = df.iloc[start_row:start_row+24]
     
-    # Basic info
     internal_name = str(section.iloc[0, 1]) if pd.notna(section.iloc[0, 1]) else ""
     sku_code = str(section.iloc[1, 1]) if pd.notna(section.iloc[1, 1]) else ""
     
-    # 1. Specifications DataFrame (without pack sizes)
     specs_data = []
     pack_sizes = []
     
@@ -109,7 +309,6 @@ def extract_bom_data(df, start_row):
                     "Processing Loss", "Processing Loss %", "Total Production Time"]:
             specs_data.append({"SPECIFICATIONS": col_a, "Value": col_b, "UOM": col_c})
         
-        # Extract pack sizes separately
         elif col_a == "Pack Size" or (col_a == "" and col_b in ["TRUE", "FALSE"] and col_c in ["500g", "1000g", "2000g", "5000g"]):
             if col_b in ["TRUE", "FALSE"] and col_c:
                 pack_sizes.append({
@@ -119,7 +318,6 @@ def extract_bom_data(df, start_row):
     
     specs_df = pd.DataFrame(specs_data)
     
-    # 2. Recipe Yield DataFrame
     recipe_yield = ""
     recipe_batches = ""
     for idx, row in section.iterrows():
@@ -140,7 +338,6 @@ def extract_bom_data(df, start_row):
         "RECIPE (# of Batches)": recipe_batches
     }])
     
-    # 3. Ingredients DataFrame
     ingredients_data = []
     for idx, row in section.iterrows():
         if len(row) > 9:
@@ -161,7 +358,6 @@ def extract_bom_data(df, start_row):
     
     ingredients_df = pd.DataFrame(ingredients_data)
     
-    # 4. Labor Productivity DataFrame
     labor_data = []
     labor_departments = ["Dry Product Scaling", "Vegetable Production", "Butchery", 
                         "Cold Kitchen", "Hot Kitchen", "Pastry Kitchen", "Packaging", "TOTAL"]
@@ -191,82 +387,106 @@ def extract_bom_data(df, start_row):
         "pack_sizes": pack_sizes
     }
 
-# Main app
-station = st.selectbox("Station:", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"], key="station_selector")
+# Create navigation bar
+nav_col1, nav_col2, nav_col3 = st.columns([2, 1, 1])
 
+with nav_col1:
+    st.markdown('<div class="nav-bar"><h1 class="nav-brand">BOM Explosion</h1></div>', unsafe_allow_html=True)
+
+with nav_col2:
+    station = st.selectbox("", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"], key="station_selector")
+
+# Load data and create subrecipe selector
 if station == "Cold Kitchen":
-    with st.spinner("Loading Cold Kitchen data..."):
-        df = load_cold_kitchen_data()
-    
+    df = load_cold_kitchen_data()
     if df is not None:
         subrecipes = get_subrecipes(df)
-        
         if subrecipes:
             recipe_names = [r['name'] for r in subrecipes]
-            selected_recipe = st.selectbox("Select Subrecipe:", recipe_names, key="subrecipe_selector")
-            
-            if selected_recipe:
-                selected_row = next(r['row'] for r in subrecipes if r['name'] == selected_recipe)
-                bom_data = extract_bom_data(df, selected_row)
-                
-                # Display Basic Info
-                st.markdown("### Basic Information")
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.markdown(f"**INTERNAL NAME:** {bom_data['internal_name']}")
-                with col2:
-                    st.markdown(f"**SKU CODE:** {bom_data['sku_code']}")
-                
-                # Display Specifications
-                st.markdown("### SPECIFICATIONS")
-                st.dataframe(bom_data['specifications'], use_container_width=True, hide_index=True)
-                
-                # Pack Sizes Section that persists to Google Sheets
-                if bom_data['pack_sizes']:
-                    st.markdown("### PACK SIZES")
-                    
-                    # Create columns for pack sizes
-                    pack_cols = st.columns(len(bom_data['pack_sizes']))
-                    
-                    for i, pack in enumerate(bom_data['pack_sizes']):
-                        with pack_cols[i]:
-                            # Create unique key for each checkbox
-                            checkbox_key = f"pack_{selected_recipe}_{pack['size']}_checkbox"
-                            
-                            # Display checkbox with current state from sheet
-                            new_state = st.checkbox(
-                                pack['size'],
-                                value=pack['available'],
-                                key=checkbox_key
-                            )
-                            
-                            # If state changed, update the Google Sheet
-                            if new_state != pack['available']:
-                                with st.spinner(f"Updating {pack['size']}..."):
-                                    success = update_pack_size_in_sheet(selected_row, pack['size'], new_state)
-                                    if success:
-                                        st.success(f"{pack['size']} updated!")
-                                        # Clear cache to reload fresh data
-                                        st.cache_data.clear()
-                                        st.rerun()
-                                    else:
-                                        st.error(f"Failed to update {pack['size']}")
-                                        st.rerun()
-                
-                # Display Recipe Yield
-                st.markdown("### RECIPE INFORMATION")
-                st.dataframe(bom_data['recipe_yield'], use_container_width=True, hide_index=True)
-                
-                # Display Ingredients
-                st.markdown("### INGREDIENTS")
-                st.dataframe(bom_data['ingredients'], use_container_width=True, hide_index=True)
-                
-                # Display Labor Productivity
-                st.markdown("### LABOR PRODUCTIVITY")
-                st.dataframe(bom_data['labor_productivity'], use_container_width=True, hide_index=True)
+            with nav_col3:
+                selected_recipe = st.selectbox("", recipe_names, key="subrecipe_selector")
         else:
-            st.warning("No subrecipes found in the data")
+            selected_recipe = None
     else:
-        st.error("Failed to load Cold Kitchen data")
+        selected_recipe = None
 else:
+    selected_recipe = None
+
+# Breadcrumb navigation
+if selected_recipe:
+    st.markdown(f'''
+    <div class="breadcrumb">
+        <a href="#">Home</a> / <a href="#">{station}</a> / {selected_recipe}
+    </div>
+    ''', unsafe_allow_html=True)
+
+# Main content
+if station == "Cold Kitchen" and selected_recipe and df is not None:
+    selected_row = next(r['row'] for r in subrecipes if r['name'] == selected_recipe)
+    bom_data = extract_bom_data(df, selected_row)
+    
+    # Content header
+    st.markdown(f'''
+    <div class="content-header">
+        <h1 class="content-title">{bom_data['internal_name']}</h1>
+        <div class="sku-badge">{bom_data['sku_code']}</div>
+    </div>
+    ''', unsafe_allow_html=True)
+    
+    # Specifications section
+    st.markdown('<div class="bom-section">', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">SPECIFICATIONS</h2>', unsafe_allow_html=True)
+    st.markdown('<div class="section-content">', unsafe_allow_html=True)
+    st.dataframe(bom_data['specifications'], use_container_width=True, hide_index=True)
+    st.markdown('</div></div>', unsafe_allow_html=True)
+    
+    # Pack sizes section
+    if bom_data['pack_sizes']:
+        st.markdown('<div class="bom-section">', unsafe_allow_html=True)
+        st.markdown('<h2 class="section-header">PACK SIZES</h2>', unsafe_allow_html=True)
+        st.markdown('<div class="section-content">', unsafe_allow_html=True)
+        
+        pack_cols = st.columns(len(bom_data['pack_sizes']))
+        for i, pack in enumerate(bom_data['pack_sizes']):
+            with pack_cols[i]:
+                checkbox_key = f"pack_{selected_recipe}_{pack['size']}_checkbox"
+                new_state = st.checkbox(pack['size'], value=pack['available'], key=checkbox_key)
+                
+                if new_state != pack['available']:
+                    with st.spinner(f"Updating {pack['size']}..."):
+                        success = update_pack_size_in_sheet(selected_row, pack['size'], new_state)
+                        if success:
+                            st.success(f"{pack['size']} updated!")
+                            st.cache_data.clear()
+                            st.rerun()
+                        else:
+                            st.error(f"Failed to update {pack['size']}")
+                            st.rerun()
+        
+        st.markdown('</div></div>', unsafe_allow_html=True)
+    
+    # Recipe information section
+    st.markdown('<div class="bom-section">', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">RECIPE INFORMATION</h2>', unsafe_allow_html=True)
+    st.markdown('<div class="section-content">', unsafe_allow_html=True)
+    st.dataframe(bom_data['recipe_yield'], use_container_width=True, hide_index=True)
+    st.markdown('</div></div>', unsafe_allow_html=True)
+    
+    # Ingredients section
+    st.markdown('<div class="bom-section">', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">INGREDIENTS</h2>', unsafe_allow_html=True)
+    st.markdown('<div class="section-content">', unsafe_allow_html=True)
+    st.dataframe(bom_data['ingredients'], use_container_width=True, hide_index=True)
+    st.markdown('</div></div>', unsafe_allow_html=True)
+    
+    # Labor productivity section
+    st.markdown('<div class="bom-section">', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">LABOR PRODUCTIVITY</h2>', unsafe_allow_html=True)
+    st.markdown('<div class="section-content">', unsafe_allow_html=True)
+    st.dataframe(bom_data['labor_productivity'], use_container_width=True, hide_index=True)
+    st.markdown('</div></div>', unsafe_allow_html=True)
+
+elif station != "Cold Kitchen":
     st.info(f"{station} not yet implemented")
+elif not selected_recipe:
+    st.warning("No subrecipes found in the data")
