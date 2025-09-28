@@ -65,7 +65,7 @@ def extract_bom_data(df, start_row):
     internal_name = str(section.iloc[0, 1]) if pd.notna(section.iloc[0, 1]) else ""
     sku_code = str(section.iloc[1, 1]) if pd.notna(section.iloc[1, 1]) else ""
     
-    # 1. Specifications DataFrame
+    # 1. Specifications DataFrame (without pack sizes)
     specs_data = []
     pack_sizes = []
     
@@ -78,21 +78,13 @@ def extract_bom_data(df, start_row):
                     "Processing Loss", "Processing Loss %", "Total Production Time"]:
             specs_data.append({"SPECIFICATIONS": col_a, "Value": col_b, "UOM": col_c})
         
-        # Extract pack sizes
+        # Extract pack sizes separately
         elif col_a == "Pack Size" or (col_a == "" and col_b in ["TRUE", "FALSE"] and col_c in ["500g", "1000g", "2000g", "5000g"]):
             if col_b in ["TRUE", "FALSE"] and col_c:
                 pack_sizes.append({
-                    "Pack Size": col_c,
-                    "Available": col_b == "TRUE"
+                    "size": col_c,
+                    "available": col_b == "TRUE"
                 })
-    
-    # Add pack sizes to specifications
-    for pack in pack_sizes:
-        specs_data.append({
-            "SPECIFICATIONS": f"Pack Size - {pack['Pack Size']}", 
-            "Value": "✓" if pack["Available"] else "☐", 
-            "UOM": pack['Pack Size']
-        })
     
     specs_df = pd.DataFrame(specs_data)
     
@@ -198,18 +190,33 @@ if station == "Cold Kitchen":
                 st.markdown("### SPECIFICATIONS")
                 st.dataframe(bom_data['specifications'], use_container_width=True, hide_index=True)
                 
-                # Interactive Pack Sizes
+                # Pack Sizes Section with Session State
                 if bom_data['pack_sizes']:
                     st.markdown("### PACK SIZES")
+                    
+                    # Initialize session state for pack sizes if not exists
+                    pack_state_key = f"pack_sizes_{selected_recipe}"
+                    if pack_state_key not in st.session_state:
+                        st.session_state[pack_state_key] = {
+                            pack['size']: pack['available'] for pack in bom_data['pack_sizes']
+                        }
+                    
+                    # Create columns for pack sizes
                     pack_cols = st.columns(len(bom_data['pack_sizes']))
+                    
                     for i, pack in enumerate(bom_data['pack_sizes']):
                         with pack_cols[i]:
-                            st.checkbox(
-                                pack['Pack Size'],
-                                value=pack['Available'],
-                                key=f"pack_{selected_recipe}_{pack['Pack Size']}",
-                                help=f"Enable/disable {pack['Pack Size']} packaging"
+                            # Use session state for persistence
+                            current_state = st.session_state[pack_state_key].get(pack['size'], pack['available'])
+                            
+                            new_state = st.checkbox(
+                                pack['size'],
+                                value=current_state,
+                                key=f"checkbox_{selected_recipe}_{pack['size']}"
                             )
+                            
+                            # Update session state
+                            st.session_state[pack_state_key][pack['size']] = new_state
                 
                 # Display Recipe Yield
                 st.markdown("### RECIPE INFORMATION")
