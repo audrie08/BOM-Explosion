@@ -462,39 +462,32 @@ def extract_bom_data(df, start_row):
     }
 
 def calculate_specifications(recipe_yield, num_batches, final_net_output):
-    """Calculate dynamic specifications using recipe yield * batches as theoretical total"""
+    """Calculate specifications where theoretical total = recipe yield * batches"""
     try:
         yield_val = float(recipe_yield) if recipe_yield else 0
         batches = float(num_batches) if num_batches else 1
         final_output = float(final_net_output) if final_net_output else 0
         
-        theoretical_total = yield_val * batches  # Recipe yield * batches
+        # Recipe Yield (Unportioned) in app = original recipe yield * batches
+        calculated_recipe_yield = yield_val * batches
+        
+        # Theoretical Total = Recipe Yield (Unportioned) from the app
+        theoretical_total = calculated_recipe_yield
+        
         processing_loss = theoretical_total - final_output
         processing_loss_pct = (processing_loss / theoretical_total * 100) if theoretical_total > 0 else 0
         
-        return theoretical_total, final_output, processing_loss, processing_loss_pct
+        return calculated_recipe_yield, theoretical_total, final_output, processing_loss, processing_loss_pct
     except:
-        return 0, 0, 0, 0
+        return 0, 0, 0, 0, 0
 
 def calculate_ingredients_with_batches(ingredients_df, num_batches):
-    """Multiply ingredient quantities by number of batches"""
+    """QTY stays the same - never changes"""
     if ingredients_df.empty:
         return ingredients_df
     
-    try:
-        batches = float(num_batches) if num_batches else 1
-        updated_df = ingredients_df.copy()
-        
-        # Multiply QTY column by number of batches and rename to QTY
-        updated_df['QTY'] = updated_df['QTY'].astype(float) * batches
-        updated_df['QTY'] = updated_df['QTY'].round(3)
-        
-        # Keep original column order
-        updated_df = updated_df[['QTY', 'BATCH QTY', 'INTERNAL NAME']]
-        
-        return updated_df
-    except:
-        return ingredients_df
+    # QTY column remains unchanged - no multiplication
+    return ingredients_df[['QTY', 'BATCH QTY', 'INTERNAL NAME']]
 
 # Load data first to get recipe names
 station = "Cold Kitchen"  # Set default
@@ -589,7 +582,8 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     
     with recipe_col1:
         st.markdown("**Recipe Yield (Unportioned):**")
-        st.text(f"{bom_data['recipe_yield']} L")
+        calculated_recipe_yield = float(bom_data['recipe_yield']) * num_batches if bom_data['recipe_yield'] else 0
+        st.text(f"{calculated_recipe_yield:.2f} L")
     
     with recipe_col2:
         st.markdown("**Recipe (# of Batches):**")
@@ -598,7 +592,7 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     st.markdown('</div></div>', unsafe_allow_html=True)
     
     # Calculate dynamic specifications
-    theoretical_total, final_net_output, processing_loss, processing_loss_pct = calculate_specifications(
+    calculated_recipe_yield, theoretical_total, final_net_output, processing_loss, processing_loss_pct = calculate_specifications(
         bom_data['recipe_yield'], num_batches, bom_data['final_net_output']
     )
     
