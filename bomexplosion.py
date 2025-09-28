@@ -43,7 +43,6 @@ def load_cold_kitchen_data():
         worksheet = sh.get_worksheet(2)  # Sheet index 2 for Cold Kitchen
         data = worksheet.get_all_values()
         df = pd.DataFrame(data)
-        st.success(f"Loaded {len(df)} rows from Cold Kitchen sheet")
         return df
     except Exception as e:
         st.error(f"Error loading Cold Kitchen data: {e}")
@@ -265,52 +264,6 @@ if station == "Cold Kitchen":
                 # Display Labor Productivity
                 st.markdown("### LABOR PRODUCTIVITY")
                 st.dataframe(bom_data['labor_productivity'], use_container_width=True, hide_index=True)
-                
-                # Download options
-                st.markdown("### Export Options")
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    # Create downloadable text format
-                    text_output = f"""INTERNAL NAME: {bom_data['internal_name']}
-SKU CODE: {bom_data['sku_code']}
-
-SPECIFICATIONS:
-{bom_data['specifications'].to_string(index=False)}
-
-RECIPE INFORMATION:
-{bom_data['recipe_yield'].to_string(index=False)}
-
-INGREDIENTS:
-{bom_data['ingredients'].to_string(index=False)}
-
-LABOR PRODUCTIVITY:
-{bom_data['labor_productivity'].to_string(index=False)}"""
-                    
-                    st.download_button(
-                        "Download BOM (Text)",
-                        data=text_output,
-                        file_name=f"{selected_recipe}_BOM.txt",
-                        mime="text/plain"
-                    )
-                
-                with col2:
-                    # Create Excel download
-                    buffer = io.BytesIO()
-                    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-                        bom_data['specifications'].to_excel(writer, sheet_name='Specifications', index=False)
-                        bom_data['recipe_yield'].to_excel(writer, sheet_name='Recipe Info', index=False)
-                        bom_data['ingredients'].to_excel(writer, sheet_name='Ingredients', index=False)
-                        bom_data['labor_productivity'].to_excel(writer, sheet_name='Labor Productivity', index=False)
-                    
-                    buffer.seek(0)
-                    
-                    st.download_button(
-                        "Download BOM (Excel)",
-                        data=buffer.getvalue(),
-                        file_name=f"{selected_recipe}_BOM.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
         else:
             st.warning("No subrecipes found in the data")
     else:
