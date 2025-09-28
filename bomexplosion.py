@@ -1,4 +1,4 @@
-import streamlit as st
+ximport streamlit as st
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
@@ -534,9 +534,7 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     ''', unsafe_allow_html=True)
     
     st.dataframe(bom_data['specifications'], use_container_width=True, hide_index=True)
-    
-    st.markdown('</div></div>', unsafe_allow_html=True)
-    
+        
     # Pack sizes section (without container - simple title and checkboxes)
     if bom_data['pack_sizes']:
         st.markdown('<h3 class="pack-sizes-title">PACK SIZES</h3>', unsafe_allow_html=True)
