@@ -49,6 +49,15 @@ def load_cold_kitchen_data():
         st.error(f"Error loading Cold Kitchen data: {e}")
         return None
 
+def get_subrecipes(df):
+    subrecipes = []
+    for idx, row in df.iterrows():
+        col_a_value = str(row.iloc[0]).strip().upper()
+        if "INTERNAL NAME" in col_a_value:
+            name = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else f"Recipe_{idx}"
+            subrecipes.append({'name': name, 'row': idx})
+    return subrecipes
+
 def update_pack_size_in_sheet(recipe_row, pack_size, new_state):
     """Update pack size state directly in Google Sheets"""
     try:
@@ -70,7 +79,7 @@ def update_pack_size_in_sheet(recipe_row, pack_size, new_state):
                 if len(row_data) >= 3:
                     col_c = row_data[2] if len(row_data) > 2 else ""
                     if col_c == pack_size:
-                        # Update column B (index 2 in 1-based, but 1 in 0-based array)
+                        # Update column B (index 2 in 1-based)
                         worksheet.update_cell(row_idx, 2, "TRUE" if new_state else "FALSE")
                         return True
             except:
@@ -80,13 +89,6 @@ def update_pack_size_in_sheet(recipe_row, pack_size, new_state):
     except Exception as e:
         st.error(f"Error updating sheet: {e}")
         return False
-    subrecipes = []
-    for idx, row in df.iterrows():
-        col_a_value = str(row.iloc[0]).strip().upper()
-        if "INTERNAL NAME" in col_a_value:
-            name = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else f"Recipe_{idx}"
-            subrecipes.append({'name': name, 'row': idx})
-    return subrecipes
 
 def extract_bom_data(df, start_row):
     section = df.iloc[start_row:start_row+24]
