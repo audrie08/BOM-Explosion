@@ -67,6 +67,8 @@ def extract_bom_data(df, start_row):
     
     # 1. Specifications DataFrame
     specs_data = []
+    pack_sizes = []
+    
     for idx, row in section.iterrows():
         col_a = str(row.iloc[0]).strip() if pd.notna(row.iloc[0]) else ""
         col_b = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else ""
@@ -75,6 +77,22 @@ def extract_bom_data(df, start_row):
         if col_a in ["Standard Batch Size", "Theoretical Total", "Final Net Output (yielded weight)", 
                     "Processing Loss", "Processing Loss %", "Total Production Time"]:
             specs_data.append({"SPECIFICATIONS": col_a, "Value": col_b, "UOM": col_c})
+        
+        # Extract pack sizes
+        elif col_a == "Pack Size" or (col_a == "" and col_b in ["TRUE", "FALSE"] and col_c in ["500g", "1000g", "2000g", "5000g"]):
+            if col_b in ["TRUE", "FALSE"] and col_c:
+                pack_sizes.append({
+                    "Pack Size": col_c,
+                    "Available": col_b == "TRUE"
+                })
+    
+    # Add pack sizes to specifications
+    for pack in pack_sizes:
+        specs_data.append({
+            "SPECIFICATIONS": f"Pack Size - {pack['Pack Size']}", 
+            "Value": "✓" if pack["Available"] else "☐", 
+            "UOM": pack['Pack Size']
+        })
     
     specs_df = pd.DataFrame(specs_data)
     
@@ -146,7 +164,8 @@ def extract_bom_data(df, start_row):
         "specifications": specs_df,
         "recipe_yield": recipe_df,
         "ingredients": ingredients_df,
-        "labor_productivity": labor_df
+        "labor_productivity": labor_df,
+        "pack_sizes": pack_sizes
     }
 
 # Main app
@@ -178,6 +197,19 @@ if station == "Cold Kitchen":
                 # Display Specifications
                 st.markdown("### SPECIFICATIONS")
                 st.dataframe(bom_data['specifications'], use_container_width=True, hide_index=True)
+                
+                # Interactive Pack Sizes
+                if bom_data['pack_sizes']:
+                    st.markdown("### PACK SIZES")
+                    pack_cols = st.columns(len(bom_data['pack_sizes']))
+                    for i, pack in enumerate(bom_data['pack_sizes']):
+                        with pack_cols[i]:
+                            st.checkbox(
+                                pack['Pack Size'],
+                                value=pack['Available'],
+                                key=f"pack_{selected_recipe}_{pack['Pack Size']}",
+                                help=f"Enable/disable {pack['Pack Size']} packaging"
+                            )
                 
                 # Display Recipe Yield
                 st.markdown("### RECIPE INFORMATION")
