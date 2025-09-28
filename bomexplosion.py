@@ -3,6 +3,7 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 import warnings
+import io
 
 warnings.filterwarnings('ignore')
 
@@ -147,6 +148,9 @@ def extract_bom_data(df, start_row):
         "ingredients": ingredients_df,
         "labor_productivity": labor_df
     }
+
+# Main app
+station = st.selectbox("Station:", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"])
 
 # Main app
 station = st.selectbox("Station:", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"])
