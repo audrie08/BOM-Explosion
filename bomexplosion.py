@@ -64,8 +64,42 @@ def extract_bom_data(df, start_row):
     internal_name = str(section.iloc[0, 1]) if pd.notna(section.iloc[0, 1]) else ""
     sku_code = str(section.iloc[1, 1]) if pd.notna(section.iloc[1, 1]) else ""
     
-    # Get ingredients from columns H, I, J
-    ingredients = []
+    # 1. Specifications DataFrame
+    specs_data = []
+    for idx, row in section.iterrows():
+        col_a = str(row.iloc[0]).strip() if pd.notna(row.iloc[0]) else ""
+        col_b = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else ""
+        col_c = str(row.iloc[2]).strip() if pd.notna(row.iloc[2]) else ""
+        
+        if col_a in ["Standard Batch Size", "Theoretical Total", "Final Net Output (yielded weight)", 
+                    "Processing Loss", "Processing Loss %", "Total Production Time"]:
+            specs_data.append({"SPECIFICATIONS": col_a, "Value": col_b, "UOM": col_c})
+    
+    specs_df = pd.DataFrame(specs_data)
+    
+    # 2. Recipe Yield DataFrame
+    recipe_yield = ""
+    recipe_batches = ""
+    for idx, row in section.iterrows():
+        if len(row) > 6:
+            col_f = str(row.iloc[5]).strip() if pd.notna(row.iloc[5]) else ""
+            col_g = str(row.iloc[6]).strip() if pd.notna(row.iloc[6]) else ""
+            if col_f and col_g and col_f != "RECIPE YIELD (Unportioned)":
+                try:
+                    float(col_f)
+                    recipe_yield = col_f
+                    recipe_batches = col_g
+                    break
+                except:
+                    pass
+    
+    recipe_df = pd.DataFrame([{
+        "RECIPE YIELD (Unportioned)": recipe_yield,
+        "RECIPE (# of Batches)": recipe_batches
+    }])
+    
+    # 3. Ingredients DataFrame
+    ingredients_data = []
     for idx, row in section.iterrows():
         if len(row) > 9:
             qty = str(row.iloc[7]).strip() if pd.notna(row.iloc[7]) else ""
@@ -75,11 +109,17 @@ def extract_bom_data(df, start_row):
             if qty and batch_qty and ingredient_name and ingredient_name != "INTERNAL NAME":
                 try:
                     float(qty)
-                    ingredients.append(f"{qty}\t{batch_qty}\t{ingredient_name}")
+                    ingredients_data.append({
+                        "QTY": qty,
+                        "BATCH QTY": batch_qty,
+                        "INTERNAL NAME": ingredient_name
+                    })
                 except:
                     pass
     
-    # Get labor productivity data from columns A, B, C, D
+    ingredients_df = pd.DataFrame(ingredients_data)
+    
+    # 4. Labor Productivity DataFrame
     labor_data = []
     labor_departments = ["Dry Product Scaling", "Vegetable Production", "Butchery", 
                         "Cold Kitchen", "Hot Kitchen", "Pastry Kitchen", "Packaging", "TOTAL"]
@@ -90,21 +130,23 @@ def extract_bom_data(df, start_row):
             notes = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else ""
             batch_production = str(row.iloc[2]).strip() if pd.notna(row.iloc[2]) else ""
             cost = str(row.iloc[3]).strip() if pd.notna(row.iloc[3]) else ""
-            labor_data.append(f"{col_a}\t{notes}\t{batch_production}\t{cost}")
+            labor_data.append({
+                "LABOR PRODUCTIVITY (minutes)": col_a,
+                "Procedure Notes": notes,
+                "Batch Production": batch_production,
+                "Cost per 1 batch": cost
+            })
     
-    # Format output
-    output = f"""INTERNAL NAME: {internal_name}
-SKU CODE: {sku_code}
-
-INGREDIENTS:
-QTY\tBATCH QTY\tINTERNAL NAME
-{chr(10).join(ingredients)}
-
-LABOR PRODUCTIVITY (minutes):
-Department\tNotes\tBatch Production\tCost per 1 batch
-{chr(10).join(labor_data)}"""
+    labor_df = pd.DataFrame(labor_data)
     
-    return output
+    return {
+        "internal_name": internal_name,
+        "sku_code": sku_code,
+        "specifications": specs_df,
+        "recipe_yield": recipe_df,
+        "ingredients": ingredients_df,
+        "labor_productivity": labor_df
+    }
 
 # Main app
 station = st.selectbox("Station:", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"])
