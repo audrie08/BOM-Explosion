@@ -281,7 +281,7 @@ st.markdown("""
         color: #2C2C2C !important;
         font-weight: 700 !important;
         font-size: 1.2rem !important;
-        margin: 30px 0 15px 0 !important;
+        margin: 0px 0 15px 0 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.5px !important;
         display: block !important;
@@ -482,12 +482,25 @@ def calculate_specifications(recipe_yield, num_batches, final_net_output):
         return 0, 0, 0, 0, 0
 
 def calculate_ingredients_with_batches(ingredients_df, num_batches):
-    """QTY stays the same - never changes"""
+    """QTY stays the same, BATCH QTY = QTY * num_batches"""
     if ingredients_df.empty:
         return ingredients_df
     
-    # QTY column remains unchanged - no multiplication
-    return ingredients_df[['QTY', 'BATCH QTY', 'INTERNAL NAME']]
+    try:
+        batches = float(num_batches) if num_batches else 1
+        updated_df = ingredients_df.copy()
+        
+        # QTY column remains unchanged
+        # BATCH QTY = QTY * number of batches
+        updated_df['BATCH QTY'] = updated_df['QTY'].astype(float) * batches
+        updated_df['BATCH QTY'] = updated_df['BATCH QTY'].round(3)
+        
+        # Keep original column order
+        updated_df = updated_df[['QTY', 'BATCH QTY', 'INTERNAL NAME']]
+        
+        return updated_df
+    except:
+        return ingredients_df
 
 # Load data first to get recipe names
 station = "Cold Kitchen"  # Set default
@@ -570,6 +583,27 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     
     st.markdown('</div></div>', unsafe_allow_html=True)
     
+    # Pack sizes section (without container - simple title and checkboxes)
+    if bom_data['pack_sizes']:
+        st.markdown('<h3 class="pack-sizes-title">PACK SIZES</h3>', unsafe_allow_html=True)
+        
+        pack_cols = st.columns(len(bom_data['pack_sizes']))
+        for i, pack in enumerate(bom_data['pack_sizes']):
+            with pack_cols[i]:
+                checkbox_key = f"pack_{selected_recipe}_{pack['size']}_checkbox"
+                new_state = st.checkbox(pack['size'], value=pack['available'], key=checkbox_key)
+                
+                if new_state != pack['available']:
+                    with st.spinner(f"Updating {pack['size']}..."):
+                        success = update_pack_size_in_sheet(selected_row, pack['size'], new_state)
+                        if success:
+                            st.success(f"{pack['size']} updated!")
+                            st.cache_data.clear()
+                            st.rerun()
+                        else:
+                            st.error(f"Failed to update {pack['size']}")
+                            st.rerun()
+    
     # Recipe Information section (now interactive and below specifications)
     st.markdown('''
     <div class="section-container">
@@ -614,27 +648,6 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     # Update specifications with calculated values
     with specs_placeholder:
         st.dataframe(specs_df, use_container_width=True, hide_index=True)
-    
-    # Pack sizes section (without container - simple title and checkboxes)
-    if bom_data['pack_sizes']:
-        st.markdown('<h3 class="pack-sizes-title">PACK SIZES</h3>', unsafe_allow_html=True)
-        
-        pack_cols = st.columns(len(bom_data['pack_sizes']))
-        for i, pack in enumerate(bom_data['pack_sizes']):
-            with pack_cols[i]:
-                checkbox_key = f"pack_{selected_recipe}_{pack['size']}_checkbox"
-                new_state = st.checkbox(pack['size'], value=pack['available'], key=checkbox_key)
-                
-                if new_state != pack['available']:
-                    with st.spinner(f"Updating {pack['size']}..."):
-                        success = update_pack_size_in_sheet(selected_row, pack['size'], new_state)
-                        if success:
-                            st.success(f"{pack['size']} updated!")
-                            st.cache_data.clear()
-                            st.rerun()
-                        else:
-                            st.error(f"Failed to update {pack['size']}")
-                            st.rerun()
     
     # Ingredients section (with calculated quantities)
     calculated_ingredients = calculate_ingredients_with_batches(bom_data['ingredients'], num_batches)
