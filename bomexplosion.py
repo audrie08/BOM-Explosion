@@ -9,7 +9,7 @@ warnings.filterwarnings('ignore')
 
 st.set_page_config(page_title="BOM Explosion", layout="wide")
 
-# Custom CSS for Option 2 design
+# Custom CSS for exact Option 2 design
 st.markdown("""
 <style>
     /* Hide Streamlit default elements */
@@ -17,15 +17,32 @@ st.markdown("""
         padding-top: 0rem;
     }
     
+    .block-container {
+        padding-top: 0rem;
+        padding-bottom: 2rem;
+        margin-top: 0rem;
+    }
+    
+    /* Hide default title */
+    h1[data-testid="stHeader"] {
+        display: none;
+    }
+    
+    .stApp > header {
+        display: none;
+    }
+    
     /* Custom navigation bar */
-    .nav-bar {
+    .top-nav {
         background-color: #2C2C2C;
         padding: 20px 30px;
+        margin: -1rem -1rem 0 -1rem;
         display: flex;
         align-items: center;
         gap: 30px;
-        margin: -1rem -1rem 0 -1rem;
-        border-bottom: 3px solid #F4C430;
+        position: sticky;
+        top: 0;
+        z-index: 999;
     }
     
     .nav-brand {
@@ -33,20 +50,46 @@ st.markdown("""
         font-size: 1.8rem;
         font-weight: 700;
         margin: 0;
+        margin-right: auto;
     }
     
-    .nav-controls {
+    .nav-selectors {
         display: flex;
         gap: 20px;
         align-items: center;
-        margin-left: auto;
+    }
+    
+    /* Hide Streamlit selectbox containers in nav */
+    .nav-selectors .stSelectbox {
+        margin-bottom: 0 !important;
+    }
+    
+    .nav-selectors .stSelectbox > label {
+        display: none !important;
+    }
+    
+    .nav-selectors .stSelectbox > div {
+        margin-bottom: 0 !important;
+    }
+    
+    .nav-selectors .stSelectbox > div > div {
+        background-color: #3A3A3A !important;
+        border: 2px solid #F4C430 !important;
+        border-radius: 8px !important;
+        color: white !important;
+        min-width: 200px !important;
+        font-weight: 500 !important;
+    }
+    
+    .nav-selectors .stSelectbox > div > div > div {
+        color: white !important;
     }
     
     /* Custom breadcrumb */
     .breadcrumb {
         background-color: #F5F5F5;
         padding: 15px 30px;
-        margin: 0 -1rem 20px -1rem;
+        margin: 0 -1rem 30px -1rem;
         font-size: 14px;
         color: #666;
         border-bottom: 1px solid #E0E0E0;
@@ -63,7 +106,7 @@ st.markdown("""
     }
     
     /* Content header */
-    .content-header {
+    .page-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -72,7 +115,7 @@ st.markdown("""
         border-bottom: 3px solid #F4C430;
     }
     
-    .content-title {
+    .page-title {
         font-size: 2.5rem;
         color: #2C2C2C;
         font-weight: 700;
@@ -86,11 +129,10 @@ st.markdown("""
         border-radius: 25px;
         font-weight: 700;
         font-size: 16px;
-        border: none;
     }
     
-    /* Section styling */
-    .bom-section {
+    /* Section containers */
+    .section-container {
         background: white;
         border-radius: 8px;
         margin-bottom: 25px;
@@ -106,111 +148,105 @@ st.markdown("""
         font-size: 1.2rem;
         margin: 0;
         letter-spacing: 0.5px;
+        text-transform: uppercase;
     }
     
     .section-content {
-        padding: 25px;
+        padding: 0;
     }
     
-    /* Custom table styling */
-    .dataframe {
+    /* Custom dataframe styling */
+    .stDataFrame {
+        border: none !important;
+    }
+    
+    .stDataFrame > div {
+        border: none !important;
+    }
+    
+    .stDataFrame table {
         border: none !important;
         font-family: 'Inter', sans-serif !important;
+        width: 100% !important;
     }
     
-    .dataframe thead th {
+    .stDataFrame thead th {
         background-color: #F5F5F5 !important;
         color: #2C2C2C !important;
         font-weight: 600 !important;
-        padding: 15px 12px !important;
+        padding: 15px 20px !important;
+        border: none !important;
         border-bottom: 2px solid #E0E0E0 !important;
-        border-top: none !important;
-        border-left: none !important;
-        border-right: none !important;
         font-size: 14px !important;
         letter-spacing: 0.3px !important;
+        text-transform: uppercase !important;
     }
     
-    .dataframe tbody td {
-        padding: 15px 12px !important;
+    .stDataFrame tbody td {
+        padding: 15px 20px !important;
+        border: none !important;
         border-bottom: 1px solid #E0E0E0 !important;
-        border-top: none !important;
-        border-left: none !important;
-        border-right: none !important;
         font-size: 14px !important;
         color: #333 !important;
     }
     
-    .dataframe tbody tr:nth-child(even) {
+    .stDataFrame tbody tr:nth-child(even) {
         background-color: #FAFAFA !important;
     }
     
-    .dataframe tbody tr:hover {
+    .stDataFrame tbody tr:hover {
         background-color: #FFF9E6 !important;
     }
     
     /* Pack sizes styling */
-    .pack-sizes {
+    .pack-sizes-container {
+        padding: 20px 25px;
         display: flex;
         gap: 15px;
         flex-wrap: wrap;
-        padding: 20px 0;
     }
     
-    .pack-size-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background: #F5F5F5;
-        padding: 12px 18px;
-        border-radius: 8px;
-        border: 2px solid #E0E0E0;
-        transition: all 0.3s ease;
-        font-weight: 500;
+    .stCheckbox {
+        margin-bottom: 0 !important;
     }
     
-    .pack-size-item:hover {
-        border-color: #F4C430;
-        background: #FFFDF5;
-    }
-    
-    /* Hide Streamlit selectbox styling */
-    .stSelectbox > div > div {
-        background-color: #3A3A3A;
-        border: 2px solid #F4C430;
-        border-radius: 8px;
-        color: white;
-    }
-    
-    .stSelectbox > div > div > div {
-        color: white;
-        font-weight: 500;
-    }
-    
-    /* Hide default title */
-    h1 {
-        display: none;
-    }
-    
-    /* Custom spacing */
-    .block-container {
-        padding-top: 0rem;
-        padding-bottom: 2rem;
-    }
-    
-    /* Checkbox styling */
     .stCheckbox > label {
-        font-weight: 500;
-        color: #2C2C2C;
+        font-weight: 500 !important;
+        color: #2C2C2C !important;
+        font-size: 14px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        background: #F5F5F5 !important;
+        padding: 12px 18px !important;
+        border-radius: 8px !important;
+        border: 2px solid #E0E0E0 !important;
+        transition: all 0.3s ease !important;
+        margin-bottom: 0 !important;
     }
     
-    .stCheckbox > label > div {
+    .stCheckbox > label:hover {
         border-color: #F4C430 !important;
+        background: #FFFDF5 !important;
     }
     
-    .stCheckbox > label > div[data-checked="true"] {
+    .stCheckbox > label > div[data-testid="stCheckbox"] {
+        margin-right: 0 !important;
+    }
+    
+    .stCheckbox > label > div[data-testid="stCheckbox"] > div {
+        border-color: #F4C430 !important;
+        border-width: 2px !important;
+    }
+    
+    .stCheckbox > label > div[data-testid="stCheckbox"] > div[data-checked="true"] {
         background-color: #F4C430 !important;
         border-color: #F4C430 !important;
+    }
+    
+    /* Hide all default streamlit titles and headers */
+    h1, h2, h3 {
+        display: none !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -387,13 +423,19 @@ def extract_bom_data(df, start_row):
         "pack_sizes": pack_sizes
     }
 
-# Create navigation bar
-nav_col1, nav_col2, nav_col3 = st.columns([2, 1, 1])
+# Create top navigation bar
+st.markdown('''
+<div class="top-nav">
+    <div class="nav-brand">BOM Explosion</div>
+    <div class="nav-selectors" id="nav-controls">
+    </div>
+</div>
+''', unsafe_allow_html=True)
 
-with nav_col1:
-    st.markdown('<div class="nav-bar"><h1 class="nav-brand">BOM Explosion</h1></div>', unsafe_allow_html=True)
+# Create navigation selectors
+col1, col2, col3 = st.columns([6, 2, 2])
 
-with nav_col2:
+with col2:
     station = st.selectbox("", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"], key="station_selector")
 
 # Load data and create subrecipe selector
@@ -403,7 +445,7 @@ if station == "Cold Kitchen":
         subrecipes = get_subrecipes(df)
         if subrecipes:
             recipe_names = [r['name'] for r in subrecipes]
-            with nav_col3:
+            with col3:
                 selected_recipe = st.selectbox("", recipe_names, key="subrecipe_selector")
         else:
             selected_recipe = None
@@ -425,26 +467,32 @@ if station == "Cold Kitchen" and selected_recipe and df is not None:
     selected_row = next(r['row'] for r in subrecipes if r['name'] == selected_recipe)
     bom_data = extract_bom_data(df, selected_row)
     
-    # Content header
+    # Page header with recipe name and SKU
     st.markdown(f'''
-    <div class="content-header">
-        <h1 class="content-title">{bom_data['internal_name']}</h1>
+    <div class="page-header">
+        <h1 class="page-title">{bom_data['internal_name']}</h1>
         <div class="sku-badge">{bom_data['sku_code']}</div>
     </div>
     ''', unsafe_allow_html=True)
     
     # Specifications section
-    st.markdown('<div class="bom-section">', unsafe_allow_html=True)
-    st.markdown('<h2 class="section-header">SPECIFICATIONS</h2>', unsafe_allow_html=True)
-    st.markdown('<div class="section-content">', unsafe_allow_html=True)
+    st.markdown('''
+    <div class="section-container">
+        <div class="section-header">SPECIFICATIONS</div>
+        <div class="section-content">
+    ''', unsafe_allow_html=True)
+    
     st.dataframe(bom_data['specifications'], use_container_width=True, hide_index=True)
+    
     st.markdown('</div></div>', unsafe_allow_html=True)
     
     # Pack sizes section
     if bom_data['pack_sizes']:
-        st.markdown('<div class="bom-section">', unsafe_allow_html=True)
-        st.markdown('<h2 class="section-header">PACK SIZES</h2>', unsafe_allow_html=True)
-        st.markdown('<div class="section-content">', unsafe_allow_html=True)
+        st.markdown('''
+        <div class="section-container">
+            <div class="section-header">PACK SIZES</div>
+            <div class="pack-sizes-container">
+        ''', unsafe_allow_html=True)
         
         pack_cols = st.columns(len(bom_data['pack_sizes']))
         for i, pack in enumerate(bom_data['pack_sizes']):
@@ -466,24 +514,36 @@ if station == "Cold Kitchen" and selected_recipe and df is not None:
         st.markdown('</div></div>', unsafe_allow_html=True)
     
     # Recipe information section
-    st.markdown('<div class="bom-section">', unsafe_allow_html=True)
-    st.markdown('<h2 class="section-header">RECIPE INFORMATION</h2>', unsafe_allow_html=True)
-    st.markdown('<div class="section-content">', unsafe_allow_html=True)
+    st.markdown('''
+    <div class="section-container">
+        <div class="section-header">RECIPE INFORMATION</div>
+        <div class="section-content">
+    ''', unsafe_allow_html=True)
+    
     st.dataframe(bom_data['recipe_yield'], use_container_width=True, hide_index=True)
+    
     st.markdown('</div></div>', unsafe_allow_html=True)
     
     # Ingredients section
-    st.markdown('<div class="bom-section">', unsafe_allow_html=True)
-    st.markdown('<h2 class="section-header">INGREDIENTS</h2>', unsafe_allow_html=True)
-    st.markdown('<div class="section-content">', unsafe_allow_html=True)
+    st.markdown('''
+    <div class="section-container">
+        <div class="section-header">INGREDIENTS</div>
+        <div class="section-content">
+    ''', unsafe_allow_html=True)
+    
     st.dataframe(bom_data['ingredients'], use_container_width=True, hide_index=True)
+    
     st.markdown('</div></div>', unsafe_allow_html=True)
     
     # Labor productivity section
-    st.markdown('<div class="bom-section">', unsafe_allow_html=True)
-    st.markdown('<h2 class="section-header">LABOR PRODUCTIVITY</h2>', unsafe_allow_html=True)
-    st.markdown('<div class="section-content">', unsafe_allow_html=True)
+    st.markdown('''
+    <div class="section-container">
+        <div class="section-header">LABOR PRODUCTIVITY</div>
+        <div class="section-content">
+    ''', unsafe_allow_html=True)
+    
     st.dataframe(bom_data['labor_productivity'], use_container_width=True, hide_index=True)
+    
     st.markdown('</div></div>', unsafe_allow_html=True)
 
 elif station != "Cold Kitchen":
