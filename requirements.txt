@@ -1,0 +1,34 @@
+# Core libraries
+pandas
+numpy
+requests
+
+# Visualization
+matplotlib
+plotly
+streamlit
+streamlit-option-menu
+streamlit-calendar
+streamlit_lottie
+
+# Google APIs and authentication
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+gspread
+oauth2client
+
+# AWS SDK
+boto3
+
+# Other libraries
+pyyaml
+toml
+httplib2
+ssl
+openpyxl
+
+# Deprecated or system-level (consider alternatives or ensure necessity)
+# oauth2client   # Deprecated; replaced by google-auth libraries
+# ssl            # Built into Python; not needed in requirements.txt
+# st-gsheets-connection  # Uncomment if you plan to use this library
