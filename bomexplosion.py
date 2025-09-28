@@ -219,14 +219,6 @@ st.markdown("""
         background-color: #FFF9E6 !important;
     }
     
-    /* Pack sizes styling */
-    .pack-sizes-container {
-        padding: 20px 25px;
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-    }
-    
     .stCheckbox {
         margin-bottom: 0 !important;
     }
@@ -268,18 +260,6 @@ st.markdown("""
     /* Hide all default streamlit titles and headers */
     h1, h2, h3 {
         display: none !important;
-    }
-    
-    /* Pack sizes section title */
-    .pack-sizes-title {
-        color: #2C2C2C !important;
-        font-weight: 700 !important;
-        font-size: 1.2rem !important;
-        margin: 30px 0 15px 0 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-        display: block !important;
-        visibility: visible !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -533,8 +513,6 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     ''', unsafe_allow_html=True)
     
     st.dataframe(bom_data['specifications'], use_container_width=True, hide_index=True)
-    
-    st.markdown('</div></div>', unsafe_allow_html=True)
     
     # Pack sizes section (without container - simple title and checkboxes)
     if bom_data['pack_sizes']:
