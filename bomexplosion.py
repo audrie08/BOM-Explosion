@@ -34,7 +34,6 @@ st.markdown("""
     
     /* Custom navigation bar styling */
     .top-nav {
-        background-color: #2C2C2C !important;
         padding: 15px 30px !important;
         margin: -10px -1rem 0 -1rem !important;
         position: sticky !important;
