@@ -28,16 +28,16 @@ st.title("🧪 BOM Explosion")
 @st.cache_resource
 def load_credentials():
     credentials_dict = {
-        "type": st.secrets["google_credentials2"]["type"],
-        "project_id": st.secrets["google_credentials2"]["project_id"],
-        "private_key_id": st.secrets["google_credentials2"]["private_key_id"],
-        "private_key": st.secrets["google_credentials2"]["private_key"].replace('\\n', '\n'),
-        "client_email": st.secrets["google_credentials2"]["client_email"],
-        "client_id": st.secrets["google_credentials2"]["client_id"],
-        "auth_uri": st.secrets["google_credentials2"]["auth_uri"],
-        "token_uri": st.secrets["google_credentials2"]["token_uri"],
-        "auth_provider_x509_cert_url": st.secrets["google_credentials2"]["auth_provider_x509_cert_url"],
-        "client_x509_cert_url": st.secrets["google_credentials2"]["client_x509_cert_url"]
+        "type": st.secrets["google_credentials"]["type"],
+        "project_id": st.secrets["google_credentials"]["project_id"],
+        "private_key_id": st.secrets["google_credentials"]["private_key_id"],
+        "private_key": st.secrets["google_credentials"]["private_key"].replace('\\n', '\n'),
+        "client_email": st.secrets["google_credentials"]["client_email"],
+        "client_id": st.secrets["google_credentials"]["client_id"],
+        "auth_uri": st.secrets["google_credentials"]["auth_uri"],
+        "token_uri": st.secrets["google_credentials"]["token_uri"],
+        "auth_provider_x509_cert_url": st.secrets["google_credentials"]["auth_provider_x509_cert_url"],
+        "client_x509_cert_url": st.secrets["google_credentials"]["client_x509_cert_url"]
     }
     scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
     return Credentials.from_service_account_info(credentials_dict, scopes=scopes)
