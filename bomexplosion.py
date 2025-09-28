@@ -79,13 +79,30 @@ def extract_bom_data(df, start_row):
                 except:
                     pass
     
+    # Get labor productivity data from columns A, B, C, D
+    labor_data = []
+    labor_departments = ["Dry Product Scaling", "Vegetable Production", "Butchery", 
+                        "Cold Kitchen", "Hot Kitchen", "Pastry Kitchen", "Packaging", "TOTAL"]
+    
+    for idx, row in section.iterrows():
+        col_a = str(row.iloc[0]).strip() if pd.notna(row.iloc[0]) else ""
+        if col_a in labor_departments:
+            notes = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else ""
+            batch_production = str(row.iloc[2]).strip() if pd.notna(row.iloc[2]) else ""
+            cost = str(row.iloc[3]).strip() if pd.notna(row.iloc[3]) else ""
+            labor_data.append(f"{col_a}\t{notes}\t{batch_production}\t{cost}")
+    
     # Format output
     output = f"""INTERNAL NAME: {internal_name}
 SKU CODE: {sku_code}
 
 INGREDIENTS:
 QTY\tBATCH QTY\tINTERNAL NAME
-{chr(10).join(ingredients)}"""
+{chr(10).join(ingredients)}
+
+LABOR PRODUCTIVITY (minutes):
+Department\tNotes\tBatch Production\tCost per 1 batch
+{chr(10).join(labor_data)}"""
     
     return output
 
