@@ -52,7 +52,7 @@ st.markdown("""
         display: flex !important;
         align-items: center !important;
         height: 40px !important;
-        padding-top: 50px !important;
+        padding-top: 65px !important;
     }
     
     /* Force dark background on nav columns */
