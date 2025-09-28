@@ -281,7 +281,7 @@ st.markdown("""
         color: #2C2C2C !important;
         font-weight: 700 !important;
         font-size: 1.2rem !important;
-        margin: 30px 0 15px 0 !important;
+        margin: 0px 0 15px 0 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.5px !important;
         display: block !important;
@@ -570,6 +570,27 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     
     # Show specifications first (will be updated later with calculated values)
     specs_placeholder = st.empty()
+
+    # Pack sizes section (without container - simple title and checkboxes)
+    if bom_data['pack_sizes']:
+        st.markdown('<h3 class="pack-sizes-title">PACK SIZES</h3>', unsafe_allow_html=True)
+        
+        pack_cols = st.columns(len(bom_data['pack_sizes']))
+        for i, pack in enumerate(bom_data['pack_sizes']):
+            with pack_cols[i]:
+                checkbox_key = f"pack_{selected_recipe}_{pack['size']}_checkbox"
+                new_state = st.checkbox(pack['size'], value=pack['available'], key=checkbox_key)
+                
+                if new_state != pack['available']:
+                    with st.spinner(f"Updating {pack['size']}..."):
+                        success = update_pack_size_in_sheet(selected_row, pack['size'], new_state)
+                        if success:
+                            st.success(f"{pack['size']} updated!")
+                            st.cache_data.clear()
+                            st.rerun()
+                        else:
+                            st.error(f"Failed to update {pack['size']}")
+                            st.rerun()
     
     st.markdown('</div></div>', unsafe_allow_html=True)
     
@@ -617,26 +638,6 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     with specs_placeholder:
         st.dataframe(specs_df, use_container_width=True, hide_index=True)
     
-    # Pack sizes section (without container - simple title and checkboxes)
-    if bom_data['pack_sizes']:
-        st.markdown('<h3 class="pack-sizes-title">PACK SIZES</h3>', unsafe_allow_html=True)
-        
-        pack_cols = st.columns(len(bom_data['pack_sizes']))
-        for i, pack in enumerate(bom_data['pack_sizes']):
-            with pack_cols[i]:
-                checkbox_key = f"pack_{selected_recipe}_{pack['size']}_checkbox"
-                new_state = st.checkbox(pack['size'], value=pack['available'], key=checkbox_key)
-                
-                if new_state != pack['available']:
-                    with st.spinner(f"Updating {pack['size']}..."):
-                        success = update_pack_size_in_sheet(selected_row, pack['size'], new_state)
-                        if success:
-                            st.success(f"{pack['size']} updated!")
-                            st.cache_data.clear()
-                            st.rerun()
-                        else:
-                            st.error(f"Failed to update {pack['size']}")
-                            st.rerun()
     
     # Ingredients section (with calculated quantities)
     calculated_ingredients = calculate_ingredients_with_batches(bom_data['ingredients'], num_batches)
