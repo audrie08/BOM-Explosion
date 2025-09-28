@@ -219,6 +219,15 @@ st.markdown("""
         background-color: #FFF9E6 !important;
     }
     
+    /* Pack sizes styling */
+    .pack-sizes-container {
+        padding: 20px 25px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    /* Simple checkbox styling - remove containers */
     .stCheckbox {
         margin-bottom: 0 !important;
     }
@@ -230,25 +239,25 @@ st.markdown("""
         display: flex !important;
         align-items: center !important;
         gap: 8px !important;
-        background: #F5F5F5 !important;
-        padding: 12px 18px !important;
-        border-radius: 8px !important;
-        border: 2px solid #E0E0E0 !important;
-        transition: all 0.3s ease !important;
+        background: transparent !important;
+        padding: 8px 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        transition: none !important;
         margin-bottom: 0 !important;
     }
     
     .stCheckbox > label:hover {
-        border-color: #F4C430 !important;
-        background: #FFFDF5 !important;
+        background: transparent !important;
+        border: none !important;
     }
     
     .stCheckbox > label > div[data-testid="stCheckbox"] {
-        margin-right: 0 !important;
+        margin-right: 8px !important;
     }
     
     .stCheckbox > label > div[data-testid="stCheckbox"] > div {
-        border-color: #F4C430 !important;
+        border-color: #D0D0D0 !important;
         border-width: 2px !important;
     }
     
@@ -260,6 +269,18 @@ st.markdown("""
     /* Hide all default streamlit titles and headers */
     h1, h2, h3 {
         display: none !important;
+    }
+    
+    /* Pack sizes section title */
+    .pack-sizes-title {
+        color: #2C2C2C !important;
+        font-weight: 700 !important;
+        font-size: 1.2rem !important;
+        margin: 30px 0 15px 0 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        display: block !important;
+        visibility: visible !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -514,9 +535,11 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     
     st.dataframe(bom_data['specifications'], use_container_width=True, hide_index=True)
     
+    st.markdown('</div></div>', unsafe_allow_html=True)
+    
     # Pack sizes section (without container - simple title and checkboxes)
     if bom_data['pack_sizes']:
-        st.markdown('<h3>PACK SIZES</h3>', unsafe_allow_html=True)
+        st.markdown('<h3 class="pack-sizes-title">PACK SIZES</h3>', unsafe_allow_html=True)
         
         pack_cols = st.columns(len(bom_data['pack_sizes']))
         for i, pack in enumerate(bom_data['pack_sizes']):
