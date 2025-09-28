@@ -51,7 +51,7 @@ st.markdown("""
         letter-spacing: 0.5px !important;
         display: flex !important;
         align-items: center !important;
-        height: 60px !important;
+        height: 50px !important;
         padding-top: 40px !important;
     }
     
