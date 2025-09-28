@@ -276,7 +276,7 @@ st.markdown("""
         color: #2C2C2C !important;
         font-weight: 700 !important;
         font-size: 1.2rem !important;
-        margin: 30px 0 15px 0 !important;
+        margin: 20px 0 10px 0 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.5px !important;
         display: block !important;
