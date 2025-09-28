@@ -49,7 +49,37 @@ def load_cold_kitchen_data():
         st.error(f"Error loading Cold Kitchen data: {e}")
         return None
 
-def get_subrecipes(df):
+def update_pack_size_in_sheet(recipe_row, pack_size, new_state):
+    """Update pack size state directly in Google Sheets"""
+    try:
+        credentials = load_credentials()
+        if not credentials:
+            return False
+        
+        gc = gspread.authorize(credentials)
+        sh = gc.open_by_key("17jeWWOaREFg6QMqDpQX-T3LYsETR7F4iZvWS5lC0I3w")
+        worksheet = sh.get_worksheet(2)
+        
+        # Find the pack size row within the recipe section
+        section_start = recipe_row + 1
+        section_end = recipe_row + 24
+        
+        for row_idx in range(section_start, section_end):
+            try:
+                row_data = worksheet.row_values(row_idx)
+                if len(row_data) >= 3:
+                    col_c = row_data[2] if len(row_data) > 2 else ""
+                    if col_c == pack_size:
+                        # Update column B (index 2 in 1-based, but 1 in 0-based array)
+                        worksheet.update_cell(row_idx, 2, "TRUE" if new_state else "FALSE")
+                        return True
+            except:
+                continue
+        
+        return False
+    except Exception as e:
+        st.error(f"Error updating sheet: {e}")
+        return False
     subrecipes = []
     for idx, row in df.iterrows():
         col_a_value = str(row.iloc[0]).strip().upper()
@@ -190,33 +220,37 @@ if station == "Cold Kitchen":
                 st.markdown("### SPECIFICATIONS")
                 st.dataframe(bom_data['specifications'], use_container_width=True, hide_index=True)
                 
-                # Pack Sizes Section with Session State
+                # Pack Sizes Section that persists to Google Sheets
                 if bom_data['pack_sizes']:
                     st.markdown("### PACK SIZES")
-                    
-                    # Initialize session state for pack sizes if not exists
-                    pack_state_key = f"pack_sizes_{selected_recipe}"
-                    if pack_state_key not in st.session_state:
-                        st.session_state[pack_state_key] = {
-                            pack['size']: pack['available'] for pack in bom_data['pack_sizes']
-                        }
                     
                     # Create columns for pack sizes
                     pack_cols = st.columns(len(bom_data['pack_sizes']))
                     
                     for i, pack in enumerate(bom_data['pack_sizes']):
                         with pack_cols[i]:
-                            # Use session state for persistence
-                            current_state = st.session_state[pack_state_key].get(pack['size'], pack['available'])
+                            # Create unique key for each checkbox
+                            checkbox_key = f"pack_{selected_recipe}_{pack['size']}_checkbox"
                             
+                            # Display checkbox with current state from sheet
                             new_state = st.checkbox(
                                 pack['size'],
-                                value=current_state,
-                                key=f"checkbox_{selected_recipe}_{pack['size']}"
+                                value=pack['available'],
+                                key=checkbox_key
                             )
                             
-                            # Update session state
-                            st.session_state[pack_state_key][pack['size']] = new_state
+                            # If state changed, update the Google Sheet
+                            if new_state != pack['available']:
+                                with st.spinner(f"Updating {pack['size']}..."):
+                                    success = update_pack_size_in_sheet(selected_row, pack['size'], new_state)
+                                    if success:
+                                        st.success(f"{pack['size']} updated!")
+                                        # Clear cache to reload fresh data
+                                        st.cache_data.clear()
+                                        st.rerun()
+                                    else:
+                                        st.error(f"Failed to update {pack['size']}")
+                                        st.rerun()
                 
                 # Display Recipe Yield
                 st.markdown("### RECIPE INFORMATION")
