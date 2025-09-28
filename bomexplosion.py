@@ -580,14 +580,14 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     # Interactive recipe inputs
     recipe_col1, recipe_col2 = st.columns([2, 2])
     
+    with recipe_col2:
+        st.markdown("**Recipe (# of Batches):**")
+        num_batches = st.number_input("", min_value=1, value=int(float(bom_data['recipe_batches'])) if bom_data['recipe_batches'] else 1, step=1, key="batches_input")
+    
     with recipe_col1:
         st.markdown("**Recipe Yield (Unportioned):**")
         calculated_recipe_yield = float(bom_data['recipe_yield']) * num_batches if bom_data['recipe_yield'] else 0
         st.text(f"{calculated_recipe_yield:.2f} L")
-    
-    with recipe_col2:
-        st.markdown("**Recipe (# of Batches):**")
-        num_batches = st.number_input("", min_value=1, value=int(float(bom_data['recipe_batches'])) if bom_data['recipe_batches'] else 1, step=1, key="batches_input")
     
     st.markdown('</div></div>', unsafe_allow_html=True)
     
