@@ -50,21 +50,11 @@ def load_cold_kitchen_data():
 
 def get_subrecipes(df):
     subrecipes = []
-    
-    # Debug: Show first 10 rows of column A
-    st.write("**Debug - First 10 rows of Column A:**")
-    for i in range(min(10, len(df))):
-        col_a_value = str(df.iloc[i, 0]).strip()
-        st.write(f"Row {i}: '{col_a_value}'")
-    
     for idx, row in df.iterrows():
         col_a_value = str(row.iloc[0]).strip().upper()
         if "INTERNAL NAME" in col_a_value:
             name = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else f"Recipe_{idx}"
             subrecipes.append({'name': name, 'row': idx})
-            st.write(f"Found INTERNAL NAME at row {idx}: '{name}'")
-    
-    st.info(f"Found {len(subrecipes)} subrecipes")
     return subrecipes
 
 def extract_bom_data(df, start_row):
