@@ -50,7 +50,7 @@ st.markdown("""
         letter-spacing: 0.5px !important;
         display: flex !important;
         align-items: center !important;
-        height: 40px !important;
+        height: 10px !important;
         padding-top: 55px !important;
     }
     
@@ -73,7 +73,7 @@ st.markdown("""
         margin-bottom: 0 !important;
         display: flex !important;
         align-items: center !important;
-        height: 30px !important;
+        height: 10px !important;
         padding-top: 55px !important;
     }
     
@@ -85,7 +85,7 @@ st.markdown("""
         margin-bottom: 0 !important;
         display: flex !important;
         align-items: center !important;
-        height: 30px !important;
+        height: 10px !important;
         padding-top: 55px !important;
     }
     
@@ -99,7 +99,7 @@ st.markdown("""
         height: 75px !important;
         display: flex !important;
         align-items: center !important;
-        height: 30px !important;
+        height: 10px !important;
         padding-top: 55px !important;
     }
     
@@ -107,7 +107,7 @@ st.markdown("""
         color: white !important;
         display: flex !important;
         align-items: center !important;
-        height: 30px !important;
+        height: 10px !important;
         padding-top: 55px !important;
     }
     
@@ -139,6 +139,8 @@ st.markdown("""
         margin: 0 !important;
         display: block !important;
         visibility: visible !important;
+        height: 10px !important;
+        padding-top: 55px !important;
     }
     
     .sku-badge {
