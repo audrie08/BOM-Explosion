@@ -281,7 +281,7 @@ st.markdown("""
         color: #2C2C2C !important;
         font-weight: 700 !important;
         font-size: 1.2rem !important;
-        margin: 0px 0 15px 0 !important;
+        margin: 30px 0 15px 0 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.5px !important;
         display: block !important;
@@ -381,7 +381,7 @@ def extract_bom_data(df, start_row):
         col_b = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else ""
         col_c = str(row.iloc[2]).strip() if pd.notna(row.iloc[2]) else ""
         
-        if col_a in ["Standard Batch Size", "Total Production Time"]:
+        if col_a in ["Standard Batch Size"]:
             specs_data.append({"SPECIFICATIONS": col_a, "Value": col_b, "UOM": col_c})
         elif col_a == "Final Net Output (yielded weight)":
             final_net_output = col_b
@@ -461,12 +461,14 @@ def extract_bom_data(df, start_row):
         "pack_sizes": pack_sizes
     }
 
-def calculate_specifications(recipe_yield, final_net_output):
-    """Calculate dynamic specifications based on recipe yield and final net output from sheet"""
+def calculate_specifications(recipe_yield, num_batches, final_net_output):
+    """Calculate dynamic specifications using recipe yield * batches as theoretical total"""
     try:
-        theoretical_total = float(recipe_yield) if recipe_yield else 0
+        yield_val = float(recipe_yield) if recipe_yield else 0
+        batches = float(num_batches) if num_batches else 1
         final_output = float(final_net_output) if final_net_output else 0
         
+        theoretical_total = yield_val * batches  # Recipe yield * batches
         processing_loss = theoretical_total - final_output
         processing_loss_pct = (processing_loss / theoretical_total * 100) if theoretical_total > 0 else 0
         
@@ -597,7 +599,7 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     
     # Calculate dynamic specifications
     theoretical_total, final_net_output, processing_loss, processing_loss_pct = calculate_specifications(
-        bom_data['recipe_yield'], bom_data['final_net_output']
+        bom_data['recipe_yield'], num_batches, bom_data['final_net_output']
     )
     
     # Build dynamic specifications dataframe
@@ -610,7 +612,7 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
         {"SPECIFICATIONS": "Theoretical Total", "Value": f"{theoretical_total:.2f}", "UOM": "L"},
         {"SPECIFICATIONS": "Final Net Output (yielded weight)", "Value": f"{final_net_output:.2f}", "UOM": "L"},
         {"SPECIFICATIONS": "Processing Loss", "Value": f"{processing_loss:.2f}", "UOM": "L"},
-        {"SPECIFICATIONS": "Processing Loss %", "Value": f"{processing_loss_pct:.2f}", "UOM": "%"}
+        {"SPECIFICATIONS": "Processing Loss %", "Value": f"{processing_loss_pct:.1f}%", "UOM": ""}
     ])
     
     specs_df = pd.DataFrame(dynamic_specs)
