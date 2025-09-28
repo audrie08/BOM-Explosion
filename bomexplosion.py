@@ -51,8 +51,8 @@ st.markdown("""
         letter-spacing: 0.5px !important;
         display: flex !important;
         align-items: center !important;
-        height: 40px !important;
-        padding-top: 65px !important;
+        height: 45px !important;
+        padding-top: 75px !important;
     }
     
     /* Force dark background on nav columns */
