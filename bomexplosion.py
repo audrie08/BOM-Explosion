@@ -457,6 +457,8 @@ if station == "Cold Kitchen":
 else:
     recipe_names = []
 
+st.divider()
+
 # Create navigation bar using columns
 st.markdown('<div class="top-nav">', unsafe_allow_html=True)
 
