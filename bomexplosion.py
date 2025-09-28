@@ -42,25 +42,31 @@ st.markdown("""
         z-index: 999 !important;
     }
     
+    /* BOM Explosion title styling */
+    .nav-title {
+        color: #F4C430 !important;
+        font-size: 1.8rem !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+        letter-spacing: 0.5px !important;
+        display: flex !important;
+        align-items: center !important;
+        height: 50px !important;
+        padding-top: 10px !important;
+    }
+    
     /* Force dark background on nav columns */
     .top-nav .stColumn {
         background-color: #2C2C2C !important;
+        display: flex !important;
+        align-items: center !important;
     }
     
     .top-nav .stColumn > div {
         background-color: #2C2C2C !important;
-    }
-    
-    /* BOM Explosion title styling */
-    .nav-title {
-        color: #F4C430;
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin: 0;
-        letter-spacing: 0.5px;
-        display: flex;
-        align-items: center;
-        height: 50px;
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
     }
     
     /* Style selectboxes in nav */
