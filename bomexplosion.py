@@ -40,8 +40,7 @@ st.markdown("""
         display: flex;
         align-items: center;
         justify-content: space-between;
-        position: sticky;
-        top: 0;
+        position: relative;
         z-index: 999;
     }
     
@@ -54,35 +53,42 @@ st.markdown("""
         letter-spacing: 0.5px;
     }
     
-    .nav-selectors {
-        display: flex;
-        gap: 20px;
-        align-items: center;
+    /* Position selectors in nav bar */
+    .stContainer {
+        position: absolute !important;
+        top: 0 !important;
+        right: 30px !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        z-index: 1000 !important;
     }
     
-    /* Hide Streamlit selectbox containers in nav */
-    .nav-selectors .stSelectbox {
+    /* Style selectboxes in nav */
+    .stSelectbox {
         margin-bottom: 0 !important;
+        margin-right: 20px !important;
     }
     
-    .nav-selectors .stSelectbox > label {
+    .stSelectbox > label {
         display: none !important;
     }
     
-    .nav-selectors .stSelectbox > div {
+    .stSelectbox > div {
         margin-bottom: 0 !important;
     }
     
-    .nav-selectors .stSelectbox > div > div {
+    .stSelectbox > div > div {
         background-color: #3A3A3A !important;
         border: 2px solid #F4C430 !important;
         border-radius: 8px !important;
         color: white !important;
         min-width: 200px !important;
         font-weight: 500 !important;
+        height: 40px !important;
     }
     
-    .nav-selectors .stSelectbox > div > div > div {
+    .stSelectbox > div > div > div {
         color: white !important;
     }
     
@@ -430,6 +436,15 @@ def extract_bom_data(df, start_row):
         "pack_sizes": pack_sizes
     }
 
+# Create the navigation bar structure first
+st.markdown('''
+<div class="top-nav">
+    <div class="nav-title">BOM Explosion</div>
+    <div class="nav-selectors">
+    </div>
+</div>
+''', unsafe_allow_html=True)
+
 # Load data first to get recipe names
 station = "Cold Kitchen"  # Set default
 selected_recipe = None
@@ -444,29 +459,19 @@ if station == "Cold Kitchen":
 else:
     recipe_names = []
 
-# Create invisible columns for positioning the selectors
-nav_col1, nav_col2 = st.columns([6, 6], gap="large")
-
-with nav_col1:
-    # This will be hidden but positions the first selector
-    station = st.selectbox("Station", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"], key="station_selector")
-
-with nav_col2:
-    # This will be hidden but positions the second selector
-    if recipe_names:
-        selected_recipe = st.selectbox("Recipe", recipe_names, key="subrecipe_selector")
-    else:
-        selected_recipe = st.selectbox("Recipe", ["No recipes available"], key="subrecipe_selector_empty")
-
-# Create the actual navigation bar with title and positioned selectors
-st.markdown(f'''
-<div class="top-nav">
-    <div class="nav-title">BOM Explosion</div>
-    <div class="nav-selectors">
-        <!-- Selectors will be positioned here by Streamlit -->
-    </div>
-</div>
-''', unsafe_allow_html=True)
+# Create the selectors that will appear in the nav bar
+selector_container = st.container()
+with selector_container:
+    nav_col1, nav_col2 = st.columns([1, 1])
+    
+    with nav_col1:
+        station = st.selectbox("Station", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"], key="station_selector")
+    
+    with nav_col2:
+        if recipe_names:
+            selected_recipe = st.selectbox("Recipe", recipe_names, key="subrecipe_selector")
+        else:
+            selected_recipe = st.selectbox("Recipe", ["No recipes available"], key="subrecipe_selector_empty")
 
 # Breadcrumb navigation
 if selected_recipe and selected_recipe != "No recipes available":
@@ -481,10 +486,10 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     selected_row = next(r['row'] for r in subrecipes if r['name'] == selected_recipe)
     bom_data = extract_bom_data(df, selected_row)
     
-    # Page header with recipe name on left and SKU on right
+    # Page header with recipe name on left and SKU on right - Show actual recipe name
     st.markdown(f'''
     <div class="page-header">
-        <h1 class="page-title">{bom_data['internal_name']}</h1>
+        <h1 class="page-title">{selected_recipe}</h1>
         <div class="sku-badge">{bom_data['sku_code']}</div>
     </div>
     ''', unsafe_allow_html=True)
