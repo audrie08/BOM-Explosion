@@ -5,6 +5,7 @@ numpy
 matplotlib
 altair
 plotly
+openpyxl
 
 # Google Sheets / API
 gspread
