@@ -140,7 +140,7 @@ st.markdown("""
         display: block !important;
         visibility: visible !important;
         height: 10px !important;
-        padding-top: 55px !important;
+        padding-top: 10px !important;
     }
     
     .sku-badge {
