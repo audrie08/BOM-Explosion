@@ -75,7 +75,7 @@ st.markdown("""
         display: flex !important;
         align-items: center !important;
         height: 40px !important;
-        padding-top: 65px !important;
+        padding-top: 75px !important;
     }
     
     .nav-selectors .stSelectbox > label {
@@ -87,7 +87,7 @@ st.markdown("""
         display: flex !important;
         align-items: center !important;
         height: 40px !important;
-        padding-top: 65px !important;
+        padding-top: 75px !important;
     }
     
     .nav-selectors .stSelectbox > div > div {
@@ -101,7 +101,7 @@ st.markdown("""
         display: flex !important;
         align-items: center !important;
         height: 40px !important;
-        padding-top: 65px !important;
+        padding-top: 75px !important;
     }
     
     .nav-selectors .stSelectbox > div > div > div {
@@ -109,7 +109,7 @@ st.markdown("""
         display: flex !important;
         align-items: center !important;
         height: 40px !important;
-        padding-top: 65px !important;
+        padding-top: 75px !important;
     }
     
     /* Custom breadcrumb */
