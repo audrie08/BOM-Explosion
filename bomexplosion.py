@@ -269,6 +269,18 @@ st.markdown("""
     h1, h2, h3 {
         display: none !important;
     }
+    
+    /* Pack sizes section title */
+    .pack-sizes-title {
+        color: #2C2C2C !important;
+        font-weight: 700 !important;
+        font-size: 1.2rem !important;
+        margin: 30px 0 15px 0 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        display: block !important;
+        visibility: visible !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -524,13 +536,9 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     
     st.markdown('</div></div>', unsafe_allow_html=True)
     
-    # Pack sizes section
+    # Pack sizes section (without container - simple title and checkboxes)
     if bom_data['pack_sizes']:
-        st.markdown('''
-        <div class="section-container">
-            <div class="section-header">PACK SIZES</div>
-            <div class="pack-sizes-container">
-        ''', unsafe_allow_html=True)
+        st.markdown('<h3 class="pack-sizes-title">PACK SIZES</h3>', unsafe_allow_html=True)
         
         pack_cols = st.columns(len(bom_data['pack_sizes']))
         for i, pack in enumerate(bom_data['pack_sizes']):
@@ -548,8 +556,6 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
                         else:
                             st.error(f"Failed to update {pack['size']}")
                             st.rerun()
-        
-        st.markdown('</div></div>', unsafe_allow_html=True)
     
     # Recipe information section
     st.markdown('''
