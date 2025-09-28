@@ -32,63 +32,52 @@ st.markdown("""
         display: none;
     }
     
-    /* Custom navigation bar with title on left and selectors on right */
+    /* Custom navigation bar styling */
     .top-nav {
         background-color: #2C2C2C;
         padding: 15px 30px;
         margin: -10px -1rem 0 -1rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        position: relative;
+        position: sticky;
+        top: 0;
         z-index: 999;
     }
     
-    /* BOM Explosion title in nav */
+    /* BOM Explosion title styling */
     .nav-title {
         color: #F4C430;
         font-size: 1.8rem;
         font-weight: 700;
         margin: 0;
         letter-spacing: 0.5px;
-    }
-    
-    /* Position selectors in nav bar */
-    .stContainer {
-        position: absolute !important;
-        top: 0 !important;
-        right: 30px !important;
-        height: 100% !important;
-        display: flex !important;
-        align-items: center !important;
-        z-index: 1000 !important;
+        display: flex;
+        align-items: center;
+        height: 50px;
     }
     
     /* Style selectboxes in nav */
-    .stSelectbox {
+    .nav-selectors .stSelectbox {
         margin-bottom: 0 !important;
-        margin-right: 20px !important;
     }
     
-    .stSelectbox > label {
+    .nav-selectors .stSelectbox > label {
         display: none !important;
     }
     
-    .stSelectbox > div {
+    .nav-selectors .stSelectbox > div {
         margin-bottom: 0 !important;
     }
     
-    .stSelectbox > div > div {
+    .nav-selectors .stSelectbox > div > div {
         background-color: #3A3A3A !important;
         border: 2px solid #F4C430 !important;
         border-radius: 8px !important;
         color: white !important;
         min-width: 200px !important;
         font-weight: 500 !important;
-        height: 40px !important;
+        height: 50px !important;
     }
     
-    .stSelectbox > div > div > div {
+    .nav-selectors .stSelectbox > div > div > div {
         color: white !important;
     }
     
@@ -112,16 +101,7 @@ st.markdown("""
         text-decoration: underline;
     }
     
-    /* Content header */
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-        padding-bottom: 15px;
-        border-bottom: 3px solid #F4C430;
-    }
-    
+    /* Page title styling */
     .page-title {
         font-size: 2.5rem;
         color: #2C2C2C;
@@ -254,12 +234,6 @@ st.markdown("""
     /* Hide all default streamlit titles and headers */
     h1, h2, h3 {
         display: none !important;
-    }
-    
-    /* Hide the column containers we use for positioning */
-    .nav-positioning {
-        margin: 0 !important;
-        padding: 0 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -436,15 +410,6 @@ def extract_bom_data(df, start_row):
         "pack_sizes": pack_sizes
     }
 
-# Create the navigation bar structure first
-st.markdown('''
-<div class="top-nav">
-    <div class="nav-title">BOM Explosion</div>
-    <div class="nav-selectors">
-    </div>
-</div>
-''', unsafe_allow_html=True)
-
 # Load data first to get recipe names
 station = "Cold Kitchen"  # Set default
 selected_recipe = None
@@ -459,19 +424,29 @@ if station == "Cold Kitchen":
 else:
     recipe_names = []
 
-# Create the selectors that will appear in the nav bar
-selector_container = st.container()
-with selector_container:
-    nav_col1, nav_col2 = st.columns([1, 1])
-    
-    with nav_col1:
-        station = st.selectbox("Station", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"], key="station_selector")
-    
-    with nav_col2:
-        if recipe_names:
-            selected_recipe = st.selectbox("Recipe", recipe_names, key="subrecipe_selector")
-        else:
-            selected_recipe = st.selectbox("Recipe", ["No recipes available"], key="subrecipe_selector_empty")
+# Create navigation bar using columns
+st.markdown('<div class="top-nav">', unsafe_allow_html=True)
+
+# Navigation row: Title + Filters
+nav_col1, nav_col2, nav_col3 = st.columns([3, 2, 2])
+
+with nav_col1:
+    st.markdown('<div class="nav-title">BOM Explosion</div>', unsafe_allow_html=True)
+
+with nav_col2:
+    st.markdown('<div class="nav-selectors">', unsafe_allow_html=True)
+    station = st.selectbox("Station", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"], key="station_selector")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with nav_col3:
+    st.markdown('<div class="nav-selectors">', unsafe_allow_html=True)
+    if recipe_names:
+        selected_recipe = st.selectbox("Recipe", recipe_names, key="subrecipe_selector")
+    else:
+        selected_recipe = st.selectbox("Recipe", ["No recipes available"], key="subrecipe_selector_empty")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Breadcrumb navigation
 if selected_recipe and selected_recipe != "No recipes available":
@@ -486,13 +461,17 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     selected_row = next(r['row'] for r in subrecipes if r['name'] == selected_recipe)
     bom_data = extract_bom_data(df, selected_row)
     
-    # Page header with recipe name on left and SKU on right - Show actual recipe name
-    st.markdown(f'''
-    <div class="page-header">
-        <h1 class="page-title">{selected_recipe}</h1>
-        <div class="sku-badge">{bom_data['sku_code']}</div>
-    </div>
-    ''', unsafe_allow_html=True)
+    # Page header using columns: Recipe Name + SKU
+    header_col1, header_col2 = st.columns([3, 1])
+    
+    with header_col1:
+        st.markdown(f'<h1 class="page-title">{selected_recipe}</h1>', unsafe_allow_html=True)
+    
+    with header_col2:
+        st.markdown(f'<div style="display: flex; justify-content: flex-end; align-items: center; height: 100%;"><div class="sku-badge">{bom_data["sku_code"]}</div></div>', unsafe_allow_html=True)
+    
+    # Add the yellow line separator
+    st.markdown('<div style="border-bottom: 3px solid #F4C430; margin: 20px 0;"></div>', unsafe_allow_html=True)
     
     # Specifications section
     st.markdown('''
