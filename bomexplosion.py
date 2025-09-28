@@ -9,7 +9,7 @@ warnings.filterwarnings('ignore')
 
 st.set_page_config(page_title="BOM Explosion", layout="wide")
 
-# Custom CSS for exact Option 2 design
+# Custom CSS for exact UI design
 st.markdown("""
 <style>
     /* Hide Streamlit default elements */
@@ -32,22 +32,26 @@ st.markdown("""
         display: none;
     }
     
-    /* Custom navigation bar - now just for selectors */
+    /* Custom navigation bar with title on left and selectors on right */
     .top-nav {
         background-color: #2C2C2C;
         padding: 15px 30px;
         margin: -10px -1rem 0 -1rem;
         display: flex;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: space-between;
         position: sticky;
         top: 0;
         z-index: 999;
     }
     
-    /* Remove nav-brand since title is now separate */
-    .nav-brand {
-        display: none;
+    /* BOM Explosion title in nav */
+    .nav-title {
+        color: #F4C430;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: 0.5px;
     }
     
     .nav-selectors {
@@ -245,6 +249,12 @@ st.markdown("""
     h1, h2, h3 {
         display: none !important;
     }
+    
+    /* Hide the column containers we use for positioning */
+    .nav-positioning {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -420,44 +430,46 @@ def extract_bom_data(df, start_row):
         "pack_sizes": pack_sizes
     }
 
-# Create top navigation bar with title on left and selectors on right
-title_col, nav_col1, nav_col2 = st.columns([3, 2, 2])
+# Load data first to get recipe names
+station = "Cold Kitchen"  # Set default
+selected_recipe = None
 
-with title_col:
-    st.markdown('<h1 style="color: #F4C430; font-size: 1.8rem; font-weight: 700; margin: 20px 0; padding-top: 10px;">BOM Explosion</h1>', unsafe_allow_html=True)
-
-# Create the dark navigation bar for selectors only
-st.markdown('''
-<div class="top-nav">
-    <div style="margin-left: auto; display: flex; gap: 20px; align-items: center;">
-    </div>
-</div>
-''', unsafe_allow_html=True)
-
-# Position the selectors in the nav area
-selector_col1, selector_col2, selector_col3 = st.columns([6, 2, 2])
-
-with selector_col2:
-    station = st.selectbox("", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"], key="station_selector")
-
-# Load data and create subrecipe selector
 if station == "Cold Kitchen":
     df = load_cold_kitchen_data()
     if df is not None:
         subrecipes = get_subrecipes(df)
-        if subrecipes:
-            recipe_names = [r['name'] for r in subrecipes]
-            with selector_col3:
-                selected_recipe = st.selectbox("", recipe_names, key="subrecipe_selector")
-        else:
-            selected_recipe = None
+        recipe_names = [r['name'] for r in subrecipes] if subrecipes else []
     else:
-        selected_recipe = None
+        recipe_names = []
 else:
-    selected_recipe = None
+    recipe_names = []
+
+# Create invisible columns for positioning the selectors
+nav_col1, nav_col2 = st.columns([6, 6], gap="large")
+
+with nav_col1:
+    # This will be hidden but positions the first selector
+    station = st.selectbox("Station", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"], key="station_selector")
+
+with nav_col2:
+    # This will be hidden but positions the second selector
+    if recipe_names:
+        selected_recipe = st.selectbox("Recipe", recipe_names, key="subrecipe_selector")
+    else:
+        selected_recipe = st.selectbox("Recipe", ["No recipes available"], key="subrecipe_selector_empty")
+
+# Create the actual navigation bar with title and positioned selectors
+st.markdown(f'''
+<div class="top-nav">
+    <div class="nav-title">BOM Explosion</div>
+    <div class="nav-selectors">
+        <!-- Selectors will be positioned here by Streamlit -->
+    </div>
+</div>
+''', unsafe_allow_html=True)
 
 # Breadcrumb navigation
-if selected_recipe:
+if selected_recipe and selected_recipe != "No recipes available":
     st.markdown(f'''
     <div class="breadcrumb">
         <a href="#">Home</a> / <a href="#">{station}</a> / {selected_recipe}
@@ -465,11 +477,11 @@ if selected_recipe:
     ''', unsafe_allow_html=True)
 
 # Main content
-if station == "Cold Kitchen" and selected_recipe and df is not None:
+if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No recipes available" and df is not None:
     selected_row = next(r['row'] for r in subrecipes if r['name'] == selected_recipe)
     bom_data = extract_bom_data(df, selected_row)
     
-    # Page header with recipe name and SKU
+    # Page header with recipe name on left and SKU on right
     st.markdown(f'''
     <div class="page-header">
         <h1 class="page-title">{bom_data['internal_name']}</h1>
@@ -550,5 +562,5 @@ if station == "Cold Kitchen" and selected_recipe and df is not None:
 
 elif station != "Cold Kitchen":
     st.info(f"{station} not yet implemented")
-elif not selected_recipe:
+elif not selected_recipe or selected_recipe == "No recipes available":
     st.warning("No subrecipes found in the data")
