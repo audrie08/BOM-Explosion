@@ -209,10 +209,13 @@ st.markdown("""
         border-bottom: 1px solid #E0E0E0 !important;
         font-size: 14px !important;
         color: #333 !important;
+        text-align: left !important;
     }
     
-    /* Left align QTY column */
-    .stDataFrame tbody td:first-child {
+    /* Left align all columns */
+    .stDataFrame tbody td:first-child,
+    .stDataFrame tbody td:nth-child(2),
+    .stDataFrame tbody td:nth-child(3) {
         text-align: left !important;
     }
     
@@ -281,7 +284,7 @@ st.markdown("""
         color: #2C2C2C !important;
         font-weight: 700 !important;
         font-size: 1.2rem !important;
-        margin: 0px 0 15px 0 !important;
+        margin: 30px 0 15px 0 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.5px !important;
         display: block !important;
