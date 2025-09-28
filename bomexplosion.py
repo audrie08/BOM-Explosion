@@ -38,7 +38,7 @@ def load_cold_kitchen_data():
             return None
         
         gc = gspread.authorize(credentials)
-        sh = gc.open_by_key("1K7PTd9Y3X5j-5N_knPyZm8yxDEgxXFkVZOwnfQf98hQ")
+        sh = gc.open_by_key("17jeWWOaREFg6QMqDpQX-T3LYsETR7F4iZvWS5lC0I3w")
         worksheet = sh.get_worksheet(2)  # Sheet index 2 for Cold Kitchen
         data = worksheet.get_all_values()
         df = pd.DataFrame(data)
@@ -50,10 +50,20 @@ def load_cold_kitchen_data():
 
 def get_subrecipes(df):
     subrecipes = []
+    
+    # Debug: Show first 10 rows of column A
+    st.write("**Debug - First 10 rows of Column A:**")
+    for i in range(min(10, len(df))):
+        col_a_value = str(df.iloc[i, 0]).strip()
+        st.write(f"Row {i}: '{col_a_value}'")
+    
     for idx, row in df.iterrows():
-        if str(row.iloc[0]).strip().upper() == "INTERNAL NAME":
+        col_a_value = str(row.iloc[0]).strip().upper()
+        if "INTERNAL NAME" in col_a_value:
             name = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else f"Recipe_{idx}"
             subrecipes.append({'name': name, 'row': idx})
+            st.write(f"Found INTERNAL NAME at row {idx}: '{name}'")
+    
     st.info(f"Found {len(subrecipes)} subrecipes")
     return subrecipes
 
