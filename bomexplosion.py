@@ -44,7 +44,7 @@ st.markdown("""
     /* BOM Explosion title styling */
     .nav-title {
         color: #2C2C2C !important;
-        font-size: 1.8rem !important;
+        font-size: 2.5rem !important;
         font-weight: 700 !important;
         margin: 0 !important;
         letter-spacing: 0.5px !important;
@@ -116,7 +116,7 @@ st.markdown("""
         background-color: #F5F5F5;
         padding: 15px 30px;
         margin: 0 -1rem 30px -1rem;
-        font-size: 14px;
+        font-size: 20px;
         color: #666;
         border-bottom: 1px solid #E0E0E0;
     }
@@ -147,7 +147,7 @@ st.markdown("""
         padding: 12px 24px;
         border-radius: 25px;
         font-weight: 700;
-        font-size: 16px;
+        font-size: 20px;
     }
     
     /* Section containers */
