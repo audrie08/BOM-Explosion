@@ -95,7 +95,7 @@ st.markdown("""
         color: white !important;
         min-width: 200px !important;
         font-weight: 500 !important;
-        height: 45px !important;
+        height: 65px !important;
         display: flex !important;
         align-items: center !important;
     }
