@@ -211,6 +211,11 @@ st.markdown("""
         color: #333 !important;
     }
     
+    /* Left align QTY column */
+    .stDataFrame tbody td:first-child {
+        text-align: left !important;
+    }
+    
     .stDataFrame tbody tr:nth-child(even) {
         background-color: #FAFAFA !important;
     }
@@ -452,20 +457,20 @@ def extract_bom_data(df, start_row):
         "pack_sizes": pack_sizes
     }
 
-def calculate_specifications(recipe_yield, num_batches, final_net_output):
+def calculate_specifications(recipe_yield, num_batches):
     """Calculate dynamic specifications based on batches"""
     try:
         yield_val = float(recipe_yield) if recipe_yield else 0
         batches = float(num_batches) if num_batches else 1
-        final_output = float(final_net_output) if final_net_output else 0
         
         theoretical_total = yield_val * batches
-        processing_loss = theoretical_total - final_output
-        processing_loss_pct = (processing_loss / theoretical_total * 100) if theoretical_total > 0 else 0
+        final_net_output = theoretical_total  # Same as theoretical total
+        processing_loss = 0  # No loss since final = theoretical
+        processing_loss_pct = 0
         
-        return theoretical_total, processing_loss, processing_loss_pct
+        return theoretical_total, final_net_output, processing_loss, processing_loss_pct
     except:
-        return 0, 0, 0
+        return 0, 0, 0, 0
 
 def calculate_ingredients_with_batches(ingredients_df, num_batches):
     """Multiply ingredient quantities by number of batches"""
@@ -476,12 +481,12 @@ def calculate_ingredients_with_batches(ingredients_df, num_batches):
         batches = float(num_batches) if num_batches else 1
         updated_df = ingredients_df.copy()
         
-        # Multiply QTY column by number of batches
-        updated_df['CALCULATED QTY'] = updated_df['QTY'].astype(float) * batches
-        updated_df['CALCULATED QTY'] = updated_df['CALCULATED QTY'].round(3)
+        # Multiply QTY column by number of batches and rename to QTY
+        updated_df['QTY'] = updated_df['QTY'].astype(float) * batches
+        updated_df['QTY'] = updated_df['QTY'].round(3)
         
-        # Reorder columns
-        updated_df = updated_df[['CALCULATED QTY', 'BATCH QTY', 'INTERNAL NAME']]
+        # Keep original column order
+        updated_df = updated_df[['QTY', 'BATCH QTY', 'INTERNAL NAME']]
         
         return updated_df
     except:
@@ -556,7 +561,19 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     # Add the yellow line separator
     st.markdown('<div style="border-bottom: 3px solid #F4C430; margin: 0 0 30px 0;"></div>', unsafe_allow_html=True)
     
-    # Recipe Information section (now interactive)
+    # Specifications section
+    st.markdown('''
+    <div class="section-container">
+        <div class="section-header">SPECIFICATIONS</div>
+        <div class="section-content">
+    ''', unsafe_allow_html=True)
+    
+    # Show specifications first (will be updated later with calculated values)
+    specs_placeholder = st.empty()
+    
+    st.markdown('</div></div>', unsafe_allow_html=True)
+    
+    # Recipe Information section (now interactive and below specifications)
     st.markdown('''
     <div class="section-container">
         <div class="section-header">RECIPE INFORMATION</div>
@@ -564,7 +581,7 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     ''', unsafe_allow_html=True)
     
     # Interactive recipe inputs
-    recipe_col1, recipe_col2, recipe_col3 = st.columns([2, 2, 2])
+    recipe_col1, recipe_col2 = st.columns([2, 2])
     
     with recipe_col1:
         st.markdown("**Recipe Yield (Unportioned):**")
@@ -574,15 +591,11 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
         st.markdown("**Recipe (# of Batches):**")
         num_batches = st.number_input("", min_value=0.1, value=float(bom_data['recipe_batches']) if bom_data['recipe_batches'] else 1.0, step=0.1, key="batches_input")
     
-    with recipe_col3:
-        st.markdown("**Final Net Output:**")
-        final_net_output = st.number_input("", min_value=0.0, value=float(bom_data['recipe_yield']) * num_batches if bom_data['recipe_yield'] else 0.0, step=0.1, key="final_output")
-    
     st.markdown('</div></div>', unsafe_allow_html=True)
     
     # Calculate dynamic specifications
-    theoretical_total, processing_loss, processing_loss_pct = calculate_specifications(
-        bom_data['recipe_yield'], num_batches, final_net_output
+    theoretical_total, final_net_output, processing_loss, processing_loss_pct = calculate_specifications(
+        bom_data['recipe_yield'], num_batches
     )
     
     # Build dynamic specifications dataframe
@@ -600,16 +613,9 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     
     specs_df = pd.DataFrame(dynamic_specs)
     
-    # Specifications section
-    st.markdown('''
-    <div class="section-container">
-        <div class="section-header">SPECIFICATIONS</div>
-        <div class="section-content">
-    ''', unsafe_allow_html=True)
-    
-    st.dataframe(specs_df, use_container_width=True, hide_index=True)
-    
-    st.markdown('</div></div>', unsafe_allow_html=True)
+    # Update specifications with calculated values
+    with specs_placeholder:
+        st.dataframe(specs_df, use_container_width=True, hide_index=True)
     
     # Pack sizes section (without container - simple title and checkboxes)
     if bom_data['pack_sizes']:
