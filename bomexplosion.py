@@ -374,6 +374,7 @@ def extract_bom_data(df, start_row):
     
     specs_data = []
     pack_sizes = []
+    final_net_output = ""
     
     for idx, row in section.iterrows():
         col_a = str(row.iloc[0]).strip() if pd.notna(row.iloc[0]) else ""
@@ -382,6 +383,8 @@ def extract_bom_data(df, start_row):
         
         if col_a in ["Standard Batch Size", "Total Production Time"]:
             specs_data.append({"SPECIFICATIONS": col_a, "Value": col_b, "UOM": col_c})
+        elif col_a == "Final Net Output (yielded weight)":
+            final_net_output = col_b
         
         elif col_a == "Pack Size" or (col_a == "" and col_b in ["TRUE", "FALSE"] and col_c in ["500g", "1000g", "2000g", "5000g"]):
             if col_b in ["TRUE", "FALSE"] and col_c:
@@ -452,6 +455,7 @@ def extract_bom_data(df, start_row):
         "base_specs": specs_data,
         "recipe_yield": recipe_yield,
         "recipe_batches": recipe_batches,
+        "final_net_output": final_net_output,
         "ingredients": ingredients_df,
         "labor_productivity": labor_df,
         "pack_sizes": pack_sizes
