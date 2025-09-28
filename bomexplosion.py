@@ -150,10 +150,7 @@ def extract_bom_data(df, start_row):
     }
 
 # Main app
-station = st.selectbox("Station:", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"])
-
-# Main app
-station = st.selectbox("Station:", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"])
+station = st.selectbox("Station:", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"], key="station_selector")
 
 if station == "Cold Kitchen":
     with st.spinner("Loading Cold Kitchen data..."):
@@ -164,19 +161,81 @@ if station == "Cold Kitchen":
         
         if subrecipes:
             recipe_names = [r['name'] for r in subrecipes]
-            selected_recipe = st.selectbox("Select Subrecipe:", recipe_names)
+            selected_recipe = st.selectbox("Select Subrecipe:", recipe_names, key="subrecipe_selector")
             
             if selected_recipe:
                 selected_row = next(r['row'] for r in subrecipes if r['name'] == selected_recipe)
-                bom_output = extract_bom_data(df, selected_row)
+                bom_data = extract_bom_data(df, selected_row)
                 
-                st.text_area("BOM Output:", bom_output, height=400)
+                # Display Basic Info
+                st.markdown("### Basic Information")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown(f"**INTERNAL NAME:** {bom_data['internal_name']}")
+                with col2:
+                    st.markdown(f"**SKU CODE:** {bom_data['sku_code']}")
                 
-                st.download_button(
-                    "Download BOM",
-                    bom_output,
-                    f"{selected_recipe}_BOM.txt"
-                )
+                # Display Specifications
+                st.markdown("### SPECIFICATIONS")
+                st.dataframe(bom_data['specifications'], use_container_width=True, hide_index=True)
+                
+                # Display Recipe Yield
+                st.markdown("### RECIPE INFORMATION")
+                st.dataframe(bom_data['recipe_yield'], use_container_width=True, hide_index=True)
+                
+                # Display Ingredients
+                st.markdown("### INGREDIENTS")
+                st.dataframe(bom_data['ingredients'], use_container_width=True, hide_index=True)
+                
+                # Display Labor Productivity
+                st.markdown("### LABOR PRODUCTIVITY")
+                st.dataframe(bom_data['labor_productivity'], use_container_width=True, hide_index=True)
+                
+                # Download options
+                st.markdown("### Export Options")
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    # Create downloadable text format
+                    text_output = f"""INTERNAL NAME: {bom_data['internal_name']}
+SKU CODE: {bom_data['sku_code']}
+
+SPECIFICATIONS:
+{bom_data['specifications'].to_string(index=False)}
+
+RECIPE INFORMATION:
+{bom_data['recipe_yield'].to_string(index=False)}
+
+INGREDIENTS:
+{bom_data['ingredients'].to_string(index=False)}
+
+LABOR PRODUCTIVITY:
+{bom_data['labor_productivity'].to_string(index=False)}"""
+                    
+                    st.download_button(
+                        "Download BOM (Text)",
+                        data=text_output,
+                        file_name=f"{selected_recipe}_BOM.txt",
+                        mime="text/plain"
+                    )
+                
+                with col2:
+                    # Create Excel download
+                    buffer = io.BytesIO()
+                    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                        bom_data['specifications'].to_excel(writer, sheet_name='Specifications', index=False)
+                        bom_data['recipe_yield'].to_excel(writer, sheet_name='Recipe Info', index=False)
+                        bom_data['ingredients'].to_excel(writer, sheet_name='Ingredients', index=False)
+                        bom_data['labor_productivity'].to_excel(writer, sheet_name='Labor Productivity', index=False)
+                    
+                    buffer.seek(0)
+                    
+                    st.download_button(
+                        "Download BOM (Excel)",
+                        data=buffer.getvalue(),
+                        file_name=f"{selected_recipe}_BOM.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
         else:
             st.warning("No subrecipes found in the data")
     else:
