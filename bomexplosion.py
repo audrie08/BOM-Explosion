@@ -73,7 +73,7 @@ st.markdown("""
         margin-bottom: 0 !important;
         display: flex !important;
         align-items: center !important;
-        height: 40px !important;
+        height: 30px !important;
         padding-top: 55px !important;
     }
     
@@ -85,7 +85,7 @@ st.markdown("""
         margin-bottom: 0 !important;
         display: flex !important;
         align-items: center !important;
-        height: 40px !important;
+        height: 30px !important;
         padding-top: 55px !important;
     }
     
@@ -99,7 +99,7 @@ st.markdown("""
         height: 75px !important;
         display: flex !important;
         align-items: center !important;
-        height: 40px !important;
+        height: 30px !important;
         padding-top: 55px !important;
     }
     
@@ -107,7 +107,7 @@ st.markdown("""
         color: white !important;
         display: flex !important;
         align-items: center !important;
-        height: 40px !important;
+        height: 30px !important;
         padding-top: 55px !important;
     }
     
