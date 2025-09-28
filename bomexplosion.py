@@ -44,7 +44,7 @@ st.markdown("""
     
     /* BOM Explosion title styling */
     .nav-title {
-        color: #F4C430 !important;
+        color: #000000 !important;
         font-size: 1.8rem !important;
         font-weight: 700 !important;
         margin: 0 !important;
@@ -95,7 +95,7 @@ st.markdown("""
         color: white !important;
         min-width: 200px !important;
         font-weight: 500 !important;
-        height: 65px !important;
+        height: 75px !important;
         display: flex !important;
         align-items: center !important;
     }
