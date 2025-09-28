@@ -34,12 +34,21 @@ st.markdown("""
     
     /* Custom navigation bar styling */
     .top-nav {
-        background-color: #2C2C2C;
-        padding: 15px 30px;
-        margin: -10px -1rem 0 -1rem;
-        position: sticky;
-        top: 0;
-        z-index: 999;
+        background-color: #2C2C2C !important;
+        padding: 15px 30px !important;
+        margin: -10px -1rem 0 -1rem !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 999 !important;
+    }
+    
+    /* Force dark background on nav columns */
+    .top-nav .stColumn {
+        background-color: #2C2C2C !important;
+    }
+    
+    .top-nav .stColumn > div {
+        background-color: #2C2C2C !important;
     }
     
     /* BOM Explosion title styling */
@@ -57,6 +66,8 @@ st.markdown("""
     /* Style selectboxes in nav */
     .nav-selectors .stSelectbox {
         margin-bottom: 0 !important;
+        display: flex !important;
+        align-items: center !important;
     }
     
     .nav-selectors .stSelectbox > label {
@@ -65,6 +76,8 @@ st.markdown("""
     
     .nav-selectors .stSelectbox > div {
         margin-bottom: 0 !important;
+        display: flex !important;
+        align-items: center !important;
     }
     
     .nav-selectors .stSelectbox > div > div {
@@ -74,11 +87,15 @@ st.markdown("""
         color: white !important;
         min-width: 200px !important;
         font-weight: 500 !important;
-        height: 50px !important;
+        height: 45px !important;
+        display: flex !important;
+        align-items: center !important;
     }
     
     .nav-selectors .stSelectbox > div > div > div {
         color: white !important;
+        display: flex !important;
+        align-items: center !important;
     }
     
     /* Custom breadcrumb */
@@ -101,12 +118,14 @@ st.markdown("""
         text-decoration: underline;
     }
     
-    /* Page title styling */
+    /* Page title styling - override Streamlit hiding */
     .page-title {
-        font-size: 2.5rem;
-        color: #2C2C2C;
-        font-weight: 700;
-        margin: 0;
+        font-size: 2.5rem !important;
+        color: #2C2C2C !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+        display: block !important;
+        visibility: visible !important;
     }
     
     .sku-badge {
@@ -462,16 +481,20 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     bom_data = extract_bom_data(df, selected_row)
     
     # Page header using columns: Recipe Name + SKU
+    st.markdown('<div style="margin: 30px 0 20px 0;">', unsafe_allow_html=True)
+    
     header_col1, header_col2 = st.columns([3, 1])
     
     with header_col1:
         st.markdown(f'<h1 class="page-title">{selected_recipe}</h1>', unsafe_allow_html=True)
     
     with header_col2:
-        st.markdown(f'<div style="display: flex; justify-content: flex-end; align-items: center; height: 100%;"><div class="sku-badge">{bom_data["sku_code"]}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="display: flex; justify-content: flex-end; align-items: center; height: 80px;"><div class="sku-badge">{bom_data["sku_code"]}</div></div>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Add the yellow line separator
-    st.markdown('<div style="border-bottom: 3px solid #F4C430; margin: 20px 0;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="border-bottom: 3px solid #F4C430; margin: 0 0 30px 0;"></div>', unsafe_allow_html=True)
     
     # Specifications section
     st.markdown('''
