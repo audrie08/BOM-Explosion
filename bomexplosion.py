@@ -323,7 +323,7 @@ def load_cold_kitchen_data():
         
         gc = gspread.authorize(credentials)
         sh = gc.open_by_key("17jeWWOaREFg6QMqDpQX-T3LYsETR7F4iZvWS5lC0I3w")
-        worksheet = sh.get_worksheet(3)
+        worksheet = sh.get_worksheet(4)
         data = worksheet.get_all_values()
         df = pd.DataFrame(data)
         return df
@@ -348,7 +348,7 @@ def update_pack_size_in_sheet(recipe_row, pack_size, new_state):
         
         gc = gspread.authorize(credentials)
         sh = gc.open_by_key("17jeWWOaREFg6QMqDpQX-T3LYsETR7F4iZvWS5lC0I3w")
-        worksheet = sh.get_worksheet(3)
+        worksheet = sh.get_worksheet(4)
         
         section_start = recipe_row + 1
         section_end = recipe_row + 24
