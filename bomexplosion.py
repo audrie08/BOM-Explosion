@@ -550,7 +550,7 @@ with nav_col1:
 
 with nav_col2:
     st.markdown('<div class="nav-selectors">', unsafe_allow_html=True)
-    station = st.selectbox("Station", ["Cold Kitchen", "Fabrication Poultry", "Fabrication Meats", "Pastry", "Hot Kitchen"], key="station_selector")
+    station = st.selectbox("Station", ["Cold Kitchen", "Hot Kitchen", "Butchery", "Pastry"], key="station_selector")
     st.markdown('</div>', unsafe_allow_html=True)
 
 with nav_col3:
