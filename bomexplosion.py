@@ -315,7 +315,7 @@ def load_credentials():
         return None
 
 @st.cache_data(ttl=60)
-def load_cold_kitchen_data():
+def load_station_data(station):
     try:
         credentials = load_credentials()
         if not credentials:
@@ -323,12 +323,21 @@ def load_cold_kitchen_data():
         
         gc = gspread.authorize(credentials)
         sh = gc.open_by_key("17jeWWOaREFg6QMqDpQX-T3LYsETR7F4iZvWS5lC0I3w")
-        worksheet = sh.get_worksheet(2)
+        
+        # Map station to worksheet index
+        station_sheet_map = {
+            "Butchery": 2,
+            "Hot Kitchen": 3,
+            "Cold Kitchen": 4
+        }
+        
+        sheet_index = station_sheet_map.get(station, 4)
+        worksheet = sh.get_worksheet(sheet_index)
         data = worksheet.get_all_values()
         df = pd.DataFrame(data)
         return df
     except Exception as e:
-        st.error(f"Error loading Cold Kitchen data: {e}")
+        st.error(f"Error loading {station} data: {e}")
         return None
 
 def get_subrecipes(df):
@@ -340,7 +349,7 @@ def get_subrecipes(df):
             subrecipes.append({'name': name, 'row': idx})
     return subrecipes
 
-def update_pack_size_in_sheet(recipe_row, pack_size, new_state):
+def update_pack_size_in_sheet(recipe_row, pack_size, new_state, station):
     try:
         credentials = load_credentials()
         if not credentials:
@@ -348,7 +357,16 @@ def update_pack_size_in_sheet(recipe_row, pack_size, new_state):
         
         gc = gspread.authorize(credentials)
         sh = gc.open_by_key("17jeWWOaREFg6QMqDpQX-T3LYsETR7F4iZvWS5lC0I3w")
-        worksheet = sh.get_worksheet(2)
+        
+        # Map station to worksheet index
+        station_sheet_map = {
+            "Butchery": 2,
+            "Hot Kitchen": 3,
+            "Cold Kitchen": 4
+        }
+        
+        sheet_index = station_sheet_map.get(station, 4)  # Get the correct sheet index
+        worksheet = sh.get_worksheet(sheet_index)  # Use the mapped index
         
         section_start = recipe_row + 1
         section_end = recipe_row + 24
