@@ -328,7 +328,8 @@ def load_station_data(station):
         station_sheet_map = {
             "Butchery": 2,
             "Hot Kitchen": 3,
-            "Cold Kitchen": 4
+            "Cold Kitchen": 4,
+            "Pastry": 5
         }
         
         sheet_index = station_sheet_map.get(station, 4)
@@ -362,11 +363,12 @@ def update_pack_size_in_sheet(recipe_row, pack_size, new_state, station):
         station_sheet_map = {
             "Butchery": 2,
             "Hot Kitchen": 3,
-            "Cold Kitchen": 4
+            "Cold Kitchen": 4,
+            "Pastry": 5
         }
         
-        sheet_index = station_sheet_map.get(station, 4)  # Get the correct sheet index
-        worksheet = sh.get_worksheet(sheet_index)  # Use the mapped index
+        sheet_index = station_sheet_map.get(station, 4)
+        worksheet = sh.get_worksheet(sheet_index)
         
         section_start = recipe_row + 1
         section_end = recipe_row + 24
@@ -523,19 +525,8 @@ def calculate_ingredients_with_batches(ingredients_df, num_batches):
     except:
         return ingredients_df
 
-# Load data first to get recipe names
-station = "Cold Kitchen"  # Set default
-selected_recipe = None
-
-if station in ["Cold Kitchen", "Hot Kitchen", "Butchery", "Pastry"]:
-    df = load_station_data(station)
-    if df is not None:
-        subrecipes = get_subrecipes(df)
-        recipe_names = [r['name'] for r in subrecipes] if subrecipes else []
-    else:
-        recipe_names = []
-else:
-    recipe_names = []
+# Load data first to get recipe names - BUT DON'T USE IT YET
+# We'll reload after station selection
 
 st.divider()
 
@@ -552,6 +543,19 @@ with nav_col2:
     st.markdown('<div class="nav-selectors">', unsafe_allow_html=True)
     station = st.selectbox("Station", ["Cold Kitchen", "Hot Kitchen", "Butchery", "Pastry"], key="station_selector")
     st.markdown('</div>', unsafe_allow_html=True)
+
+# NOW load data based on selected station
+if station in ["Cold Kitchen", "Hot Kitchen", "Butchery", "Pastry"]:
+    df = load_station_data(station)
+    if df is not None:
+        subrecipes = get_subrecipes(df)
+        recipe_names = [r['name'] for r in subrecipes] if subrecipes else []
+    else:
+        recipe_names = []
+        df = None
+else:
+    recipe_names = []
+    df = None
 
 with nav_col3:
     st.markdown('<div class="nav-selectors">', unsafe_allow_html=True)
