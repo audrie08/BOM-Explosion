@@ -323,7 +323,7 @@ def load_cold_kitchen_data():
         
         gc = gspread.authorize(credentials)
         sh = gc.open_by_key("17jeWWOaREFg6QMqDpQX-T3LYsETR7F4iZvWS5lC0I3w")
-        worksheet = sh.get_worksheet(4)
+        worksheet = sh.get_worksheet(2)
         data = worksheet.get_all_values()
         df = pd.DataFrame(data)
         return df
@@ -348,7 +348,7 @@ def update_pack_size_in_sheet(recipe_row, pack_size, new_state):
         
         gc = gspread.authorize(credentials)
         sh = gc.open_by_key("17jeWWOaREFg6QMqDpQX-T3LYsETR7F4iZvWS5lC0I3w")
-        worksheet = sh.get_worksheet(4)
+        worksheet = sh.get_worksheet(2)
         
         section_start = recipe_row + 1
         section_end = recipe_row + 24
@@ -509,8 +509,8 @@ def calculate_ingredients_with_batches(ingredients_df, num_batches):
 station = "Cold Kitchen"  # Set default
 selected_recipe = None
 
-if station == "Cold Kitchen":
-    df = load_cold_kitchen_data()
+if station in ["Cold Kitchen", "Hot Kitchen", "Butchery", "Pastry"]:
+    df = load_station_data(station)
     if df is not None:
         subrecipes = get_subrecipes(df)
         recipe_names = [r['name'] for r in subrecipes] if subrecipes else []
@@ -554,7 +554,7 @@ if selected_recipe and selected_recipe != "No recipes available":
     ''', unsafe_allow_html=True)
 
 # Main content
-if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No recipes available" and df is not None:
+if station in ["Cold Kitchen", "Hot Kitchen", "Butchery", "Pastry"] and selected_recipe and selected_recipe != "No recipes available" and df is not None:
     selected_row = next(r['row'] for r in subrecipes if r['name'] == selected_recipe)
     bom_data = extract_bom_data(df, selected_row)
     
@@ -585,27 +585,6 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     specs_placeholder = st.empty()
     
     st.markdown('</div></div>', unsafe_allow_html=True)
-    
-    # Pack sizes section (without container - simple title and checkboxes)
-    if bom_data['pack_sizes']:
-        st.markdown('<h3 class="pack-sizes-title">PACK SIZES</h3>', unsafe_allow_html=True)
-        
-        pack_cols = st.columns(len(bom_data['pack_sizes']))
-        for i, pack in enumerate(bom_data['pack_sizes']):
-            with pack_cols[i]:
-                checkbox_key = f"pack_{selected_recipe}_{pack['size']}_checkbox"
-                new_state = st.checkbox(pack['size'], value=pack['available'], key=checkbox_key)
-                
-                if new_state != pack['available']:
-                    with st.spinner(f"Updating {pack['size']}..."):
-                        success = update_pack_size_in_sheet(selected_row, pack['size'], new_state)
-                        if success:
-                            st.success(f"{pack['size']} updated!")
-                            st.cache_data.clear()
-                            st.rerun()
-                        else:
-                            st.error(f"Failed to update {pack['size']}")
-                            st.rerun()
     
     # Recipe Information section (now interactive and below specifications)
     st.markdown('''
@@ -652,6 +631,27 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     with specs_placeholder:
         st.dataframe(specs_df, use_container_width=True, hide_index=True)
     
+    # Pack sizes section (without container - simple title and checkboxes)
+    if bom_data['pack_sizes']:
+        st.markdown('<h3 class="pack-sizes-title">PACK SIZES</h3>', unsafe_allow_html=True)
+        
+        pack_cols = st.columns(len(bom_data['pack_sizes']))
+        for i, pack in enumerate(bom_data['pack_sizes']):
+            with pack_cols[i]:
+                checkbox_key = f"pack_{selected_recipe}_{pack['size']}_checkbox"
+                new_state = st.checkbox(pack['size'], value=pack['available'], key=checkbox_key)
+                
+                if new_state != pack['available']:
+                    with st.spinner(f"Updating {pack['size']}..."):
+                        success = update_pack_size_in_sheet(selected_row, pack['size'], new_state, station)
+                        if success:
+                            st.success(f"{pack['size']} updated!")
+                            st.cache_data.clear()
+                            st.rerun()
+                        else:
+                            st.error(f"Failed to update {pack['size']}")
+                            st.rerun()
+    
     # Ingredients section (with calculated quantities)
     calculated_ingredients = calculate_ingredients_with_batches(bom_data['ingredients'], num_batches)
     
@@ -676,7 +676,7 @@ if station == "Cold Kitchen" and selected_recipe and selected_recipe != "No reci
     
     st.markdown('</div></div>', unsafe_allow_html=True)
 
-elif station != "Cold Kitchen":
+elif station not in ["Cold Kitchen", "Hot Kitchen", "Butchery", "Pastry"]:
     st.info(f"{station} not yet implemented")
 elif not selected_recipe or selected_recipe == "No recipes available":
     st.warning("No subrecipes found in the data")
