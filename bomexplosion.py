@@ -364,7 +364,7 @@ def update_pack_size_in_sheet(recipe_row, pack_size, new_state, station):
             "Butchery": 2,
             "Hot Kitchen": 3,
             "Cold Kitchen": 4,
-            "Pastry": 5
+            "Pastry": 1
         }
         
         sheet_index = station_sheet_map.get(station, 4)
